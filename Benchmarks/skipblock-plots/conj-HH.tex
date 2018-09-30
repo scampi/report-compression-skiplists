@@ -1,0 +1,140 @@
+
+\begin{tikzpicture}
+\begin{axis}[
+        scatter/classes={
+		a={mark=o},
+		b={mark=star},
+		c={mark=square}
+% 		d={mark=diamond},
+% 		e={mark=triangle}
+  },
+  xlabel=$Time \; (s)$,
+  ylabel=$Scans$,
+  mark options={scale=2},
+  legend style={font=\scriptsize},
+]
+
+\addplot[red,scatter, only marks]
+plot[scatter src=explicit symbolic]
+coordinates {
+% 	(3.400, 55766922) [a]
+% 	(2.492, 55882733) [b]
+% 	(2.484, 65538236) [c]
+% 	(2.541, 73415418) [d]
+% 	(2.619, 85376552) [e]
+
+% 	(3.400, 50197056) [a]
+% 	(2.492, 52524966) [b]
+% 	(2.484, 64766407) [c]
+% 	(2.541, 72983836) [d]
+% 	(2.619, 85129635) [e]
+	
+	(2.484, 64766407) [a]
+	(2.517, 72893207) [b]
+	(2.582, 54730557) [c]
+};
+
+\addplot[blue,scatter, only marks]
+plot[scatter src=explicit symbolic]
+coordinates {
+	(16.836, 54212443) [a]
+	(15.826, 54205740) [b]
+	(15.783, 42438570) [c]
+};
+
+% \addplot+[blue,scatter, only marks]
+% plot[scatter src=explicit symbolic]
+% coordinates {
+% % 	(3.631, 53390244) [a]
+% % 	(2.650, 54471140) [b]
+% % 	(2.844, 65153966) [c]
+% % 	(2.517, 73224689) [d]
+% % 	(2.925, 85264977) [e]
+% 	(3.631, 47270398) [a]
+% 	(2.650, 51058497) [b]
+% 	(2.844, 64576706) [c]
+% 	(2.517, 72893207) [d]
+% 	(2.925, 85080396) [e]
+% };
+% 
+% \addplot+[green,scatter, only marks]
+% plot[scatter src=explicit symbolic]
+% coordinates {
+% % 	(3.746, 53680730) [a]
+% % 	(3.795, 53203556) [b]
+% % 	(2.646, 54160474) [c]
+% % 	(2.627, 56475877) [d]
+% % 	(2.582, 56514322) [e]
+% 	(3.746, 33665878) [a]
+% 	(3.795, 42187630) [b]
+% 	(2.646, 51063586) [c]
+% 	(2.627, 54730109) [d]
+% 	(2.582, 54730557) [e]
+% };
+
+\legend{$I_1$, $I_2$, $I_3$}
+\end{axis}
+\end{tikzpicture}
+
+\begin{tikzpicture}
+\begin{axis}[
+        scatter/classes={
+		a={mark=o},
+		b={mark=star},
+		c={mark=square}
+% 		d={mark=diamond},
+% 		e={mark=triangle}
+  },
+  xlabel=$Time \; (s)$,
+  ylabel=$Size \; (MB)$,
+  mark options={scale=2},
+  legend style={font=\scriptsize},
+  legend pos= north east
+]
+
+\addplot[red,scatter, only marks]
+plot[scatter src=explicit symbolic]
+coordinates {
+% 	(3.400, 12.02) [a]
+% 	(2.492, 7.36) [b]
+% 	(2.484, 2.97) [c]
+% 	(2.541, 1.66) [d]
+% 	(2.619, 0.95) [e]
+	
+	(2.484, 15) [a]
+	(2.517, 9.39) [b]
+	(2.582, 41.53) [c]
+};
+
+\addplot[blue,scatter, only marks]
+plot[scatter src=explicit symbolic]
+coordinates {
+	(16.836, 0.941) [a]
+	(15.826, 1.076) [b]
+	(15.783, 16.69) [c]
+};
+
+% \addplot+[blue,scatter, only marks]
+% plot[scatter src=explicit symbolic]
+% coordinates {
+% 	(3.631, 14.10) [a]
+% 	(2.650, 9.16) [b]
+% 	(2.844, 2.25) [c]
+% 	(2.517, 1.30) [d]
+% 	(2.925, 0.74) [e]
+% };
+% 
+% \addplot+[green,scatter, only marks]
+% plot[scatter src=explicit symbolic]
+% coordinates {
+% 	(3.746, 40.83) [a]
+% 	(3.795, 23.87) [b]
+% 	(2.646, 7.60) [c]
+% 	(2.627, 4.99) [d]
+% 	(2.582, 4.81) [e]
+% };
+
+\legend{$I_1$, $I_2$, $I_3$}
+\end{axis}
+\end{tikzpicture}
+

@@ -1,0 +1,41 @@
+% \subfloat[Unstructured data]{%
+\begin{tikzpicture}[baseline]
+\begin{axis}[
+ylabel=$Time \; (s)$,
+x tick label style={rotate=40, anchor=north east},
+xtick={1,...,7},
+xticklabels={AFOR-1, AFOR-2, FOR, PFOR, Rice, S-64, VByte},
+legend style={at={(0.5,1.13)}, anchor=north, legend columns=-1},
+ybar,
+ymajorgrids=true,
+bar width=7pt,
+%enlargelimits=0.015,
+title={Wikipedia}
+]
+
+\addplot
+coordinates {(1, 410) (2, 409) (3, 443) (4, 438) (5, 492) (6, 462) (7, 433)};
+
+\end{axis}
+\end{tikzpicture}
+
+\begin{tikzpicture}[baseline]
+\begin{axis}[
+ylabel=$Time \; (s)$,
+x tick label style={rotate=40, anchor=north east},
+xtick={1,...,7},
+xticklabels={AFOR-1, AFOR-2, FOR, PFOR, Rice, S-64, VByte},
+legend style={at={(0.5,1.13)}, anchor=north, legend columns=-1},
+ybar,
+ymajorgrids=true,
+bar width=7pt,
+%enlargelimits=0.015,
+title={Blog}
+]
+
+\addplot
+coordinates {(1, 12337) (2, 13040) (3, 12741) (4, 13972) (5, 14099) (6, 13152) (7, 12320)};
+
+\end{axis}
+\end{tikzpicture}
+% }

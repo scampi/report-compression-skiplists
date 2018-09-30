@@ -1,0 +1,397 @@
+\section{The SkipBlock Model}
+\label{sec:skipbock}
+
+The Skip List model works on a record unit, i.e., a synchronization point has a
+probability p to appear in an inverted list of n records.
+The SkipBlock model operates instead on \emph{blocks} of records of a fixed
+size, in place of the records themselves. Consequently, the probabilistic parameter
+$p$ is defined with respect to a block unit. A synchronization point is
+created every $\frac{1}{p^i}$ blocks on a level $i$, thus every $\frac{\vert B
+\vert}{p^i}$ records where $\vert B \vert$ denotes the block size. A
+synchronization point links to the first record of a block interval. Compared
+to Figure~\ref{fig:skiplists}, a SkipBlock structure with $p=\frac{1}{8}$ and
+$\vert B \vert=2$ also has an interval of $\frac{\vert B \vert}{p^1}=16$
+records. However, on level 2, the synchronization points are separated by
+$\frac{\vert B \vert}{p^2}=128$ instead of 256 records. We note that with
+$\vert B \vert= 1$, the SkipBlock model is equivalent to the original Skip
+Lists model, and therefore it is a generalization. The two properties of the
+Skip Lists are then translated to this model:
+\begin{enumerate}
+  \item the number of levels is defined by
+\begin{equation}
+L_B(n)=\left\lfloor \ln_{\frac{1}{p}}\left(\frac{n}{\vert B \vert}\right) \right\rfloor
+\label{eq:skipblock-maxlevels}
+\end{equation}
+  \item the structure's size
+\begin{equation}
+S_B(n)=\sum_{i=1}^{
+L_B\left(n\right)}{\left\lfloor \frac{n\times p^i}{\vert B \vert}
+\right\rfloor}
+\label{eq:skipblock-size}
+\end{equation}
+\end{enumerate}
+
+\subsection{SkipBlock Search Algorithm}
+\label{sec:search-skipblock}
+
+With the block-based Skip Lists model, the search algorithm returns an
+interval of blocks containing the target record. We discuss the search in
+that interval in Section~\ref{sec:search-interval}. The search walk is identical
+to the one presented in Section~\ref{sec:search-skiplists}: we walk from the
+top to the bottom level, and compare at each step the current synchronization
+point with the target. The walk stops at the same termination criteria as in
+Skip Lists. The search complexity in the worst case becomes
+\begin{equation}
+C_{SB}=\frac{L_B(n)}{p}
+\label{eq:skipblock-complexity}
+\end{equation}
+
+\subsection{Impact of the Self-Indexing Parameters}
+\label{sec:block-probas-impact}
+
+In this section, we discuss the consequences of the probabilistic parameter on
+the Skip Lists data structure.
+Table~\ref{tab:skiplists-proba} reports for low (i.e., $\frac{1}{1024}$) and
+high (i.e., $\frac{1}{2}$) probabilities
+\begin{inparaenum}[(1)]
+\item the complexity (\ref{eq:skiplists-complexity}) to find the interval
+containing the target record, and
+\item the size (\ref{eq:skiplists-size}) of the Skip Lists structure.
+\end{inparaenum}
+For example with an interval $\vert I \vert = 1024$ and an
+inverted list of size $10^6$ (i.e., Skip Lists with one level), reaching a record
+located at the end of the inverted list incurs a lot of synchronization points
+at level 1 being read. With a smaller interval, e.g. 16, the number of
+synchronization points read decreases because the $L(10^6)=4$ levels provide
+more accessing points to the inverted list.
+
+Large intervals give the possibility to skip over a large number of records by
+reading a few synchronization points. However this leads to less use cases of
+the Skip Lists structure when the searched records are close to each other. In
+the latter case, small intervals are then more adapted, but at the cost of a
+bigger structure. Moreover the more levels there are, the more walks up and
+down on them there are.
+
+There is a trade-off to achieve when selecting $p$: a high probability
+provides a low search complexity but at a larger space cost, and a low
+probability reduces considerably the required space at the cost of higher
+search complexity.
+
+The SkipBlock model provides two parameters to control its Skip Lists
+structure: the probabilistic parameter $p$ and the block size $\vert B \vert$.
+The block size parameter enables more control over the Skip Lists structure. For
+example, to build a structure with an interval of length 64, the original Skip
+Lists model proposes only one configuration given by $p=\frac{1}{64}$. For
+this same interval length, SkipBlock proposes all the configurations that
+verify the equation $\frac{\vert B \vert}{p}=64$.
+Table~\ref{tab:skiplists-proba-block} reports statistics of some SkipBlock
+configurations for the same interval lengths as in
+Table~\ref{tab:skiplists-proba}. Compared to Skip Lists on a same interval
+length, SkipBlock shows a lower search complexity in exchange of a larger
+structure.
+
+\begin{table}
+\begin{center}
+\subfloat[Skip Lists with $\vert I\vert=\frac{1}{p}$.]{
+\centering
+\ra{1.1}
+\resizebox{0.39\linewidth}{!}{%
+\begin{tabular}{@{}lcc@{\hs}c@{\hs}c@{\hs}c@{\hs}c@{\hs}}
+\toprule
+$\vert I \vert$ & \phantom{a} & 2 & 16 & 64 & 128 & 1024\\
+\cmidrule{2-7}
+$S(n)$ & \phantom{a} &
+\numprint{99999988}&\numprint{6666664}&\numprint{1587300}&\numprint{787400}&\numprint{97751}\\
+$C$ & \phantom{a} & 54 & 112 & 320 & 512 & 3072 \\
+\bottomrule
+\end{tabular}
+\label{tab:skiplists-proba}
+}}\quad%
+\subfloat[SkipBlock with $\vert I\vert=\frac{\vert B \vert}{p}$.]{
+\ra{1.1}
+\resizebox{0.54\linewidth}{!}{%
+\begin{tabular}{@{}lcc@{\hs}c@{\hs}cc@{\hs}c@{\hs}cc@{\hs}c@{\hs}cc@{\hs}c@{\hs}}
+\toprule
+$\vert I \vert$ & \phantom{a} & \multicolumn{2}{c}{16} & \phantom{a} &
+\multicolumn{2}{c}{64} & \phantom{a} & \multicolumn{2}{c}{128} & \phantom{a} &
+\multicolumn{2}{c}{1024} \\
+\cmidrule{3-4} \cmidrule{6-7} \cmidrule{9-10} \cmidrule{12-13}
+p:$\vert B \vert$ & \phantom{a} & $\frac{1}{4}$:4 & $\frac{1}{8}$:2 & \phantom{a} &
+$\frac{1}{4}$:16 & $\frac{1}{8}$:8 & \phantom{a} & $\frac{1}{4}$:32 &
+$\frac{1}{8}$:16 & \phantom{a} & $\frac{1}{4}$:256 & $\frac{1}{8}$:128 \\
+$S_B(n)$ & \phantom{a} & \numprint{8333328} & \numprint{7142853} &
+\phantom{a} & \numprint{2083328} & \numprint{1785710} & \phantom{a} &
+\numprint{1041660} & \numprint{892853} & \phantom{a} &
+\numprint{130203} & \numprint{111603} \\
+$C$ & \phantom{a} & 48 & 64 & \phantom{a} & 44 & 56 & \phantom{a} &
+40 & 56 & \phantom{a} & 36 & 48 \\
+\bottomrule
+\end{tabular}
+\label{tab:skiplists-proba-block}
+}}%
+\end{center}
+\caption{Search and size costs of Skip Lists and SkipBlock with $n=10^8$.
+$\vert I \vert$ stands for an interval length. $C$ reports the search
+complexity to find an interval (Sections~\ref{sec:search-skiplists}
+and~\ref{sec:search-skipblock}).}
+\end{table}
+
+\section{Searching within an Interval}
+\label{sec:search-interval}
+
+The Skip Lists and SkipBlock techniques enables the retrieval of an interval
+given a target record. The next step is to find the target record within that
+interval. A first strategy (S1) is to linearly scan all the records within
+that interval until the target is found. Its complexity is therefore $O(\vert I \vert)$.
+
+SkipBlock takes advantage of the block-based structure of the
+interval to perform more efficient search strategy. Here are defined four
+additional strategies for searching a block-based interval, parameterized to a
+probability p. The second strategy (S2) performs
+\begin{enumerate}[(a)]
+\item a linear scan over the blocks of the interval to find the block holding
+the target and
+\label{s2-linear-search-blocks}
+\item a linear scan of the records of that block to find the target.
+\label{s2-target-block}
+\end{enumerate}
+The search complexity is $\frac{1}{p}+\vert B \vert$ with $\frac{1}{p}$ denoting
+the linear scan over the blocks and $\vert B \vert$ the linear scan over the
+records of one block. Similarly to S2, the third strategy (S3) performs the
+step (\ref{s2-linear-search-blocks}). Then, it uses to find the target an
+inner-block Skip Lists structure restricted to one level only. The complexity
+is $\frac{1}{p}+\frac{1}{q}+\left\lfloor\vert B\vert\times q\right\rfloor$
+with q the probability of the inner Skip Lists. In contrast to S3, the fourth
+strategy (S4) uses a non-restricted inner-block Skip Lists structure. The
+complexity is $\frac{1}{p}+\frac{L(\vert B \vert)+1}{q}$ with q the inner Skip
+Lists probability. The fifth one (S5) builds a Skip Lists structure on the
+whole interval instead of on a block. Its complexity is then
+$\frac{L\left(\frac{\vert B\vert}{p}\right)+1}{q}$, with $q$ the inner Skip
+Lists probability. The strategies S3, S4 and S5 are equivalent to S2 when the
+block size is too small for creating synchronization points.
+
+\section{Cost-Based Comparison}
+\label{sec:cost-based-cmp}
+
+In this section, we define a cost model that we use to compare five
+SkipBlock implementations and the original Skip Lists implementation.
+
+\paragraph{Cost Model}
+\label{sec:skipblock-cost-model}
+For both the Skip Lists and the SkipBlock, we define a cost model by
+\begin{inparaenum}[(a)]
+\item the cost to search for the target, and
+\label{cost-search}
+\item the cost of the data structure's size.
+\label{cost-size}
+\end{inparaenum}
+The search cost consists in the number of synchronization points traversed to
+reach the interval containing the target, plus the number of records scanned
+in that interval to find the target. The size cost consists in the total number
+of synchronization points in the data structure, including the additional ones
+for S3, S4 and S5 in the intervals.
+
+\paragraph{Implementations}
+\label{sec:impl} 
+We define as the baseline implementation, denoted $I_1$, the Skip
+Lists model using the strategy (\emph{S1}). We define
+five implementations of the SkipBlock model, denoted by $I_2$, $I_3$,
+$I_4$, $I_5$ and $I_6$, based on the five interval search strategies, i.e.,
+\emph{S1}, \emph{S2}, \emph{S3},\emph{S4} and \emph{S5} respectively. The
+inner Skip Lists in implementations $I_4$, $I_5$ and $I_6$ is
+configured with probability $q=\frac{1}{16}$. The inner Skip Lists in $I_5$ and
+$I_6$ have at least 2 levels. The size costs of the six implementations are 
+\begin{itemize}
+  \item[$I_1$:] $S(n)$
+  \item[$I_2$:] $S_B(n)$
+  \item[$I_3$:] $S_B(n)+\frac{n}{\vert B \vert}$
+  \item[$I_4$:] $S_B(n)+\left\lfloor n\times q\right\rfloor$
+  \item[$I_5$:] $S_B(n)+\frac{S(\vert B \vert)\times n}{\vert B \vert}$  
+  \item[$I_6$:]$S_B(n)+\frac{S(p\times\vert B \vert)\times n}{p\times\vert B
+  \vert}$
+\end{itemize}
+
+\paragraph{Comparison}
+
+With respect to the SkipBlock model, we tested all the possible
+configurations for a given interval length. We report that all of them were
+providing better search cost than the baseline. We only report in
+Table~\ref{tab:cmp-costs} the configurations providing the best search cost
+given an interval length with the associated size cost. We observe that $I_2$
+already provides better search cost than the baseline $I_1$ using the same
+search strategy \emph{S1}, in exchange of a larger size cost. The other
+implementations, i.e., $I_3$, $I_4$, $I_5$ and $I_6$ which use a more
+efficient interval search strategies further decrease the search cost. In
+addition, their size cost decreases significantly with the size of the
+interval. On a large interval ($512$), $I_4$ is able to provide a low search
+cost ($64$) while sustaining a small size cost ($6.5e6$). The inner Skip
+Lists of $I_5$ and $I_6$ are built on lists too small to provide benefits. To
+conclude, $I_4$ seems to provide a good compromise between search cost and
+size cost with large intervals.
+
+\begin{table}
+\centering
+\ra{1.1}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lcc@{\hs}c@{\hs}c@{\hs}c@{\hs}c@{\hs}c@{\hs}cc@{\hs}c@{\hs}c@{\hs}c@{\hs}c@{\hs}c@{\hs}cc@{\hs}c@{\hs}c@{\hs}c@{\hs}c@{\hs}c@{\hs}cc@{\hs}c@{\hs}c@{\hs}c@{\hs}c@{\hs}c@{\hs}}
+\toprule
+$\vert I\vert$&\phantom{a}&\multicolumn{6}{c}{8}
+&\phantom{a}&\multicolumn{6}{c}{16}
+&\phantom{a}&\multicolumn{6}{c}{512}
+&\phantom{a}&\multicolumn{6}{c}{1152}\\
+&\phantom{a}& $I_1$ & $I_2$ & $I_3$ & $I_4$ & $I_5$ & $I_6$  &\phantom{a}& $I_1$ & $I_2$ & $I_3$
+& $I_4$ & $I_5$ & $I_6$   &\phantom{a}& $I_1$ & $I_2$ & $I_3$ & $I_4$ & $I_5$ & $I_6$  &\phantom{a}& $I_1$ &
+$I_2$ & $I_3$ & $I_4$ & $I_5$ & $I_6$  \\
+\cmidrule{3-8}\cmidrule{10-15}\cmidrule{17-22}\cmidrule{24-29}
+SC&\phantom{a}& $72$ & $56$ & \multicolumn{4}{c}{$54$}
+&\phantom{a}& $112$ & $62$ & \multicolumn{4}{c}{$56$}
+&\phantom{a}& $1536$ & $548$ & $120$ & $64$ & $86$ & $84$
+&\phantom{a}& $3456$ & $1186$ & $154$ & $74$ & $84$ & $81$ \\
+\cmidrule{3-8}\cmidrule{10-15}\cmidrule{17-22}\cmidrule{24-29}
+ZC$\times e6$&\phantom{a}& $14.3$ & $16.7$ & \multicolumn{4}{c}{$50.0$}
+&\phantom{a}& $6.7$ & $12.5$ & \multicolumn{4}{c}{$25.0$}
+&\phantom{a}& $0.2$ & $0.3$ &$1.8$ & $6.5$ & $7.0$ & $6.9$
+&\phantom{a}& $0.09$ &$0.17$ & $1.7$&$6.4$ & $6.6$&$6.7$\\
+\bottomrule
+\end{tabular}
+}%
+\caption{Search (i.e., SC) and size (i.e., ZC, in million) costs with $n=10^8$.
+SkipBlock implementations report the best search cost with the associated
+size cost.}
+\label{tab:cmp-costs}
+\end{table}
+
+\subsection{Skipping Analysis}
+
+The SkipBlock structure, as a generalization of the Skip List, possesses the
+same hierarchical layout. However the difference between the two is concrete:
+SkipBlock jumps over groups of blocks at a time, whereas Skip Lists jumps over
+groups of records. The Table~\ref{tab:skip-levels} reports the intervals at
+each levels for both structures, with a constant interval between towers of
+256 records. For a same interval length (e.g., 256 records in the table), we are
+able to yield more configurations with the SkipBlock than with the Skip List
+model. We remark that in both configurations of the SkipBlock, in-between
+levels have been added in comparison to the original Skip List. These
+additional levels give more skipping possibilities while searching. Moreover
+this implies that more data will be read from a tower in a SkipBlock structure
+than with the Skip List, for a same interval length.
+
+\begin{table}
+\ra{1.1}
+\centering
+\resizebox{0.45\linewidth}{!}{%
+\begin{tabular}{lc@{\hs}rc@{\hs}rr}
+\toprule
+Level & \phantom{a} & Skip Lists & \phantom{a} & \multicolumn{2}{c}{SkipBlock}\\
+\cmidrule{5-6}
+& & p=256 & \phantom{a} & B=16 p=16 & B=64 p=4 \\
+\cmidrule{5-6}
+1 & \phantom{a} & 256 & \phantom{a} & 256 & 256 \\
+2 & \phantom{a} & \uwave{\numprint{65536}} & \phantom{a} & \numprint{4096} &
+\numprint{1024} \\
+3 & \phantom{a} & \uwave{\numprint{16777216}} & \phantom{a} &
+\uwave{\numprint{65536}} & \numprint{4096} \\
+4 & \phantom{a} & \ldots & \phantom{a} & \numprint{1048576} & \numprint{16384}\\
+5 & \phantom{a} & \ldots & \phantom{a} & \uwave{\numprint{16777216}} &
+\uwave{\numprint{65536}}\\
+\bottomrule
+\end{tabular}
+}
+\caption{Interval length for each skip levels.}
+\label{tab:skip-levels}
+\end{table}
+
+The SkipBlock structure will behave differently depending on the parameter
+configurations in comparison to the Skip list, since they yield different skip
+levels. To have a better understanding of the differences between the two
+models, we discuss here the cost of reading skip data into memory and in which
+case it outweighs the CPU saving thanks to an adaptation of the method from
+\cite{moffat:96}.
+
+Let $t_r$ be the cost of reading one record or a synchronization point, both as
+part of a bulk read. Let also $t_d$ be the cost of decoding a
+record/synchronization point. Let further $k$ be the number of
+\emph{candidates}, i.e., the records that will be lookup from the inverted
+list thanks to the self-indexing structure. Then the total time $T$ required
+to search one inverted list of size $n$ in the worst case scenario (i.e., all
+levels up to the maximum $L(n)$ are read) is given by the formula
+\begin{displaymath}
+T=T_d+T_r=kt_d\left( C + \vert I \vert \right)+t_r\left(n+2\times S\right) 
+\end{displaymath}
+where $T_d$ is the total time to decode pointers, $T_r$ the total time to read
+into memory the inverted list and synchronization points. $ZC$ and $SC$ reports
+respectively the size and the search costs. The numerical values of $t_d$ and
+$t_r$ are respectively $2.5\times 10^{-6}$ and $0.5\times 10^{-6}$, values
+taken from \cite{moffat:96}.
+
+The Table~\ref{tab:predicted-times} reports a numerical comparison between the
+two self-indexing models, with $n=60,000$ and $k=\{60,\;6000\}$. With a bigger
+number of candidates we can expect a bigger processing time, since the
+self-indexing structure will be accessed more often. The SkipBLock structure's
+values are reported with the strategy S1 for the configurations that yields
+the best processing time T. On small intervals (e.g., 16) the SkipBlock model
+does not provide significant better performance even though the complexity is
+better than the Skip List. This is explained by the difference in size, as the
+amount of data to be read is greater, which is reflected by the greater
+required time to read data $T_r$. As the interval increases, we can see that
+the processing times increase for both models. However the expected
+processing time is inferior with SkipBlock than with the original Skip List by
+2 times.
+The reason is that even if the strategies for searching within intervals is
+the same (i.e., linear), the additional levels that the SkipBlock model
+provides give more skipping possibilities. This comforts the fact that the
+SkipBlock complexities are lower than the Skip List's. With the interval
+$\vert I \vert = 1024$, the structure's size increases by 30\%, however both
+the search complexity and the estimated processing time are twice as low as
+the original model.
+
+\begin{table}
+\ra{1.1}
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lc@{\hs}rrrc@{\hs}rrrc@{\hs}rrc@{\whs}rrrc@{\hs}rrrc@{\hs}rr}
+\toprule
+$\vert I \vert$ & \phantom{a} & \multicolumn{10}{c}{Skip List} & \phantom{a} &
+\multicolumn{10}{c}{SkipBlock} \\
+\cmidrule{3-12} \cmidrule{14-23}
+k &\phantom{a}& \multicolumn{3}{c}{60} &\phantom{a}& \multicolumn{3}{c}{6000}
+&\phantom{a}& & & \phantom{a} & \multicolumn{3}{c}{60} &\phantom{a}&
+\multicolumn{3}{c}{6000} & & \\
+\cmidrule{3-5} \cmidrule{7-9} \cmidrule{14-16} \cmidrule{18-20}
+& \phantom{a} & $T_d$ & $T_r$ & T & \phantom{a} & $T_d$ & $T_r$ & T &
+\phantom{a} & SC & ZC & \phantom{a} & $T_d$ & $T_r$ & T & \phantom{a} &
+$T_d$ & $T_r$ & T & \phantom{a} & SC & ZC \\
+16&\phantom{a}&0.010&0.034&0.044
+&\phantom{a}& 0.960 & 0.034 & 0.994 & \phantom{a}& 64 & 3998
+&\phantom{a}&0.006&0.035&0.041
+&\phantom{a}& 0.600 & 0.035 & 0.635 & \phantom{a}&40 & 4996 \\
+
+32&\phantom{a}&0.019&0.032&0.051
+&\phantom{a}& 1.92 & 0.032 & 1.952& \phantom{a} & 128 & 1934
+&\phantom{a}&0.008&0.034&0.042
+&\phantom{a}& 0.81 & 0.034 & 0.844 & \phantom{a}& 54 & 3743 \\
+
+256&\phantom{a}&0.077&0.030&0.107
+&\phantom{a}& 7.68 & 0.030 & 7.710& \phantom{a} & 512 & 234
+&\phantom{a}&0.041&0.030&0.071
+&\phantom{a}& 4.08 & 0.030 & 4.110& \phantom{a} & 272& 309 \\
+
+512&\phantom{a}&0.154&0.030&0.184
+&\phantom{a}& 15.36 & 0.030 & 15.390& \phantom{a} & 1024 & 117 
+&\phantom{a}&0.079&0.030&0.109
+&\phantom{a}& 7.89 & 0.030 & 7.920 & \phantom{a}& 526 & 229 \\
+
+1024&\phantom{a}&0.307&0.030&0.337
+&\phantom{a}&30.72 & 0.030 & 30.750& \phantom{a} & 2048 & 58
+&\phantom{a}&0.155&0.030&0.185
+&\phantom{a}& 15.54 & 0.030 & 15.570 & \phantom{a}& 1036 & 75 \\
+
+\bottomrule
+\end{tabular}}
+\caption{Predicted processing times in seconds (n=60,000), with the
+corresponding structure's search (i.e., SC) and size (i.e., ZC) costs. $T_d$
+stands for the time for decoding a record, $T_r$ for the time of reading into memory a
+record/synchronization point and T the sum of these two times. $k$ indicate the
+number of candidates.}
+\label{tab:predicted-times}
+\end{table}

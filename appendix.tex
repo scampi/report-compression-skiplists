@@ -1,0 +1,79 @@
+\chapter{Benchmarking Results}
+
+\section{Results of the Compression Benchmark}
+\label{app:compression:results}
+
+This appendix provides tables containing the results of the benchmarks that
+have been performed for comparing the indexing and querying performance of the
+index structure with various compression algorithms.
+Tables~\ref{tab:indexing-performance} have been used for generating the charts
+from Section~\ref{sec:compression:indexing-performance}.
+Tables~\ref{tab:query-time} have been used for generating the charts from
+Section~\ref{sec:compression:query-performance}.
+
+\input{Benchmarks/compression-plots/indexing-table}
+
+\begin{table*}
+\centering
+\ra{1.3}
+\input{Benchmarks/compression-plots/query-table-S}
+\caption{Query time execution using a node-based inverted index per query type,
+algorithm and dataset. We report for each query type the arithmetic mean
+($\mu$ in millisecond), the standard deviation ($\sigma$ in millisecond) and
+the total amount of data read during query processing (\emph{MB} in megabyte).}
+\label{tab:query-time}
+\end{table*}
+
+\begin{table*}
+\centering
+\ra{1.3}
+\input{Benchmarks/compression-plots/query-table-U}
+\caption{Query time execution using a traditional inverted index per query type,
+algorithm and dataset. We report for each query type the arithmetic mean
+($\mu$ in millisecond), the standard deviation ($\sigma$ in millisecond) and
+the total amount of data read during query processing (\emph{MB} in megabyte).}
+\label{tab:query-time-TRAD}
+\end{table*}
+
+
+\section{Results of the Scalability Benchmark}
+\label{app:scalability:results}
+
+This appendix provides the table containing the results of the scalability
+benchmark. Table~\ref{tab:scalability:query-rate} has been used for generating
+the charts from Section~\ref{sec:scalability:query}.
+
+\input{Benchmarks/scalability-plots/scalability-table}
+
+\section{Results of the Self-Indexing Benchmarks}
+\label{app:self-indexing:results}
+
+This appendix provides the table containing the results of the self-indexing
+benchmarks. The Table~\ref{tab:conjunction} and Table~\ref{tab:exclusion} have
+been used for generating the charts from Section~\ref{sec:self-indexing-res}.
+In both tables, the columns report the following information:
+\begin{itemize}
+\item \emph{Operands} indicates from which frequency groups the inverted lists
+were taken from.
+\item $\vert I \vert$ stands for the interval length.
+\item \emph{MB} reports the number in MBytes of data read from disk when
+searching in the self-indexing structure.
+\item \emph{Scans} reports the number of records scanned.
+\item \emph{Size} reports the structure's size.
+\item \emph{Time} indicates the average runtime of the operation
+\item \emph{Ops} gives the number of search operations.
+\end{itemize}
+
+\input{Benchmarks/skipblock-plots/skipblock-conj}
+
+\input{Benchmarks/skipblock-plots/skipblock-excl}
+
+\chapter{SkipBlock: Self-Indexing for Block-Based Inverted List}
+\label{app:SkipBlock-paper}
+
+This appendix provides the current version of the short paper that shall be
+presented at the ECIR\footnote{ECIR:
+\url{http://www.ecir2011.dcu.ie/}} conference, which is the basis of the
+SkipBlock implementation presented in the Section~\ref{sec:skipblock}.
+
+\includepdf[pages=-,delta=10 10,nup=2x1,frame=true]{skipblock-paper.pdf}

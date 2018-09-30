@@ -1,0 +1,272 @@
+\documentclass[11pt,fleqn,twoside]{book}
+
+%
+%   If twoside is specified, headers alternate and a blank
+%   page is inserted between cover and titlepage (useful for a5)
+%   
+%   set the languages (last should be the one of the main text; e.g.,
+%   german, english)
+%   and  include the style:
+%
+
+% Switch for report-text / paper-text 
+\newif\ifreport
+\reporttrue
+
+\usepackage[utf8]{inputenc}
+
+\usepackage[final]{pdfpages}
+\usepackage{verbatim}
+
+\usepackage[english]{babel}
+\usepackage{derireport}
+
+\usepackage{epsfig}
+\usepackage{url}
+\usepackage{times}
+\usepackage{alltt}
+\usepackage{xspace}
+\usepackage{latexsym}
+\usepackage{rotating}
+\usepackage{numprint}
+
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{paralist}
+\usepackage{booktabs}
+\usepackage[lined,algoruled,linesnumbered,english]{algorithm2e}
+\usepackage[dot,dash]{dashundergaps}
+\usepackage{framed}
+
+\usepackage[colorlinks=true]{hyperref}
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage[toc,page]{appendix}
+\usepackage{subfig}
+\usepackage{listings}
+
+\newfloat{fileformat}{thp}{lof}[section]
+\floatname{fileformat}{File Format}
+
+\lstset{
+  basicstyle=\scriptsize\ttfamily,
+  tabsize=2,
+  breaklines=true,
+  columns=fullflexible,
+  keywordstyle=\color[rgb]{0,0,1},
+  commentstyle=\color[rgb]{0.133,0.545,0.133},
+  stringstyle=\color[rgb]{0.5,0.5,0.5},
+  captionpos=b
+}
+\lstloadlanguages{Java,XML}
+
+% Used in benchmark tables
+\newcommand{\ra}[1]{\renewcommand{\arraystretch}{#1}}
+\newcommand{\hs}{\hspace{0.042in}}
+\newcommand{\whs}{\hspace{0.25in}}
+\renewcommand{\lstlistlistingname}{List of Listings}
+
+\foreignreport
+
+ \newtheorem{theorem}{Theorem}[section]
+ \newtheorem{proposition}[theorem]{Proposition}
+ \newtheorem{corollary}[theorem]{Corollary}
+ \newtheorem{lemma}[theorem]{Lemma}
+
+ \newtheorem{example}{Example}[section]
+ \newtheorem{definition}{Definition}[section]
+
+%\newcommand{\qed}[0]{\hspace*{1em}\hbox{\proofbox}}
+
+% \newtheorem{zdefinition}{Definition}[section]
+% \newenvironment{definition}[1][\mbox{}]{\begin{zdefinition}\begin{rm}#1}{\end{rm}\end{zdefinition}}
+
+% \newtheorem{zexample}{Example}[section]
+% \newenvironment{example}[1][\mbox{}]{\begin{zexample}\begin{rm}#1}{\end{rm}\end{zexample}}
+
+
+ %% No numbered paragraphs
+ \setcounter{secnumdepth}{3}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%
+% This is the title of the report, shown on the cover: 
+%
+
+\title{%
+Compression Techniques for Inverted Lists in Web Search Engines.
+\vskip 1em 
+Inverted Lists Structure for Semi-Structured Web Data Search.
+}
+
+\authornames{Campinas St\'ethane}
+
+
+\innertitle{}
+
+%  The authors appear with affiliations. 
+%  Thanks may be given for individual acknowledgements.
+
+%\author{
+%Campinas St\'ephane%
+% \affiliation{
+% DERI (Digital Enterprise Research Institute), National University of Ireland,
+% Galway\protect, IDA Business Park, Lower Dangan, Galway, Ireland.
+% \mbox{E-mail: stephane.campinas@deri.org.}}
+%}
+
+%
+% Publication information about preliminary version, if any
+% Optional.
+%
+
+% \published{Preliminary results of this paper appeared in ``Applications of 
+% Modal Logics in Interstellar Travelling'' 
+% {\em Proceedings of the First Interstellar Workshop on Paranormal Logics, 
+% March 24--25}, Lecture Notes in Science Fiction 0815,
+% Springer, 1974,  pp.\ 1--10.
+% }
+
+% General acknowledgements, appearing only on the inside titlepage.
+% Must be one continuous paragraph. 
+% If you want to make two or more paragraphs, 
+% use \\*[\parskip] for new line, but do not leave a line empty.
+%
+
+\acknowledgement{
+\\*[\parskip]
+The author wishes to thank his supervisors, Giovanni Tummarello and Renaud
+Delbru, for making this internship possible. The author wishes to thank
+also Renaud Delbru for providing a constant help and giving excellent
+instructions as well as an interesting view of the research world. The author
+also wants to thanks the EPITA teacher for the preparation during the the
+school year.
+\\*[\parskip]
+The author wishes further to thank his family and Katarzyna Osuchowska for
+their continuous support. }
+
+%
+% Abstract must also be one continuous paragraph. 
+% If you want to make two or more paragraphs, 
+% use \\*[\parskip] for new line and \hspace*{1.5em} for indentation, 
+% but do not leave a line empty.
+%
+
+\abstract{%
+\\*[\parskip]
+The Semantic Web is a set of layers that wraps the current web and adds useful
+meta-information describing web documents' content. This semantic information
+has a structured format, allowing web documents to be exploitable by humans and
+machines alike. In the latter case, machines permit a more comprehensive use of
+the colossal amount of knowledge in the Web. The number of such documents can
+already be counted in millions and is increasing rapidly. This calls for large
+scale systems that are able to search through this data and to retrieve
+relevant information. This report highlights that the time spent on IO
+operations for such systems is wasted, and thus reviews two approaches to
+answer this problem. We propose a compression method that increases both the
+update and the query throughput of the system. We introduce also a model that skips
+over data, avoiding to read unnecessary data.
+}
+
+%
+% The following data can be specified by either the author(s) 
+% or by the system administrator after submission:
+%
+
+\deritr{\today}
+% Give different versions separated by semicolon:
+%\date{December 2010}
+
+%
+% If \date{} is missing, the current date in format: 
+%   <month> - <year> 
+% is chosen. 
+% Using \fulldate, the format 
+%   <month> - <day>, <year> (english) 
+% resp.
+%      <Tag>. <Monat> <Jahr>
+% is chosen.
+%
+
+% Start the document here ...
+% (Macros, etc)
+
+\begin{document}
+%
+% the next line MUST come first 
+%
+
+\maketitle
+
+\newpage 
+\pagenumbering{Roman}
+
+{\small
+%\vspace*{-3.5\baselineskip}
+
+\tableofcontents
+}
+%\cleardoublepage
+
+\newpage
+\pagenumbering{arabic}
+
+%
+% Here starts the body of the paper ...
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\part{Prelude}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:prelude}
+\input{prelude}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\part{Background}
+\label{part:background}
+\input{background}
+
+\part{Methods}
+\label{part:methods}
+\input{methods}
+
+\part{Benchmarks}
+\label{part:benchmarks}
+\input{benchmarks}
+
+\part{Additional Work and  Conclusion}
+\label{part:conclusion}
+\input{conclusion}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+% \begin{appendices}
+\input{appendix}
+% \end{appendices}
+
+
+%\paragraph*{Acknowledgments}
+%
+%This work has greatly benefited from interesting discussions with XYZ
+%comments of ZXY.
+%Don't forget your sponsors!
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This reference is only needed for a cross reference:
+\bibliographystyle{plain}
+\bibliography{compression,search-indexing,semi-structured-data,sindice,siren,self-indexing}
+
+{\small
+
+\lstlistoflistings
+\listoffigures
+\listoftables
+}
+\end{document}

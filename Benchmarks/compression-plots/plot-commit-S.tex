@@ -1,0 +1,63 @@
+% \subfloat[Structured data]{%
+\begin{tikzpicture}[baseline]
+\begin{axis}[
+ylabel=$Time \; (s)$,
+x tick label style={font=\large, rotate=40, anchor=north east},
+xtick={1,...,8},
+xticklabels={AFOR-1, AFOR-2, AFOR-3, FOR, PFOR, Rice, S-64, VByte},
+legend style={at={(0.5,1.13)}, anchor=north, legend columns=-1},
+label style={font=\large},
+tick label style={font=\large},
+title style={font=\large},
+ybar,
+ymajorgrids=true,
+bar width=10pt,
+title={DBpedia},
+%enlargelimits=0.15,
+]
+\addplot[draw=blue,fill=blue]
+coordinates {(1, 536) (2, 540) (3, 562) (4, 594) (5, 583) (6, 612) (7, 558) (8, 577)};
+%\legend{Wikipedia}
+\end{axis}
+\end{tikzpicture}%
+\begin{tikzpicture}[baseline]
+\begin{axis}[
+x tick label style={font=\large, rotate=40, anchor=north east},
+xtick={1,...,8},
+xticklabels={AFOR-1, AFOR-2, AFOR-3, FOR, PFOR, Rice, S-64, VByte},
+legend style={at={(0.5,1.13)}, anchor=north, legend columns=-1},
+label style={font=\large},
+tick label style={font=\large},
+title style={font=\large},
+ybar,
+ymajorgrids=true,
+bar width=10pt,
+title={Geonames},
+%enlargelimits=0.15,
+]
+\addplot[draw=blue,fill=blue]
+coordinates {(1, 729) (2, 732) (3, 724) (4, 748) (5, 741) (6, 787) (7, 740) (8, 737)};
+%\legend{Blog}
+\end{axis}
+\end{tikzpicture}
+\begin{tikzpicture}[baseline]
+\begin{axis}[
+x tick label style={font=\large, rotate=40, anchor=north east},
+xtick={1,...,8},
+xticklabels={AFOR-1, AFOR-2, AFOR-3, FOR, PFOR, Rice, S-64, VByte},
+legend style={at={(0.5,1.13)}, anchor=north, legend columns=-1},
+label style={font=\large},
+tick label style={font=\large},
+title style={font=\large},
+ybar,
+ymajorgrids=true,
+bar width=10pt,
+title={Sindice},
+%enlargelimits=0.15,
+]
+\addplot[draw=blue,fill=blue]
+coordinates {(1, 13734) (2, 13975) (3, 13847) (4, 14978) (5, 14839) (6, 15571) (7, 14107) (8, 13223)};
+%\legend{Blog}
+\end{axis}
+\end{tikzpicture}
+% }

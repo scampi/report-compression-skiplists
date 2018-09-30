@@ -1,0 +1,168 @@
+\section{NTriple Query Parser}
+\label{sec:N3-qparser}
+
+As with the SPARQL language, the NTriple query parser aims to find sub-graph
+within datasets that best match a given set of triple patterns. Triple patterns
+are linked together thanks to Boolean operators, i.e. AND, OR, NOT. To express
+such patterns, SIREn uses a bottom-up grammar, and is built as a plugin to the
+Lucene\footnote{Lucene: \url{http://lucene.apache.org/}} query parser.
+\begin{description}
+  \item[Literals] any string enclosed between simple quotes are taken as a
+  literal.
+  \item[Literal Pattern] any string enclosed between double quotes. It
+  describes the pattern that has to appear within the object of the returned
+  triples for the query, thanks to Boolean operations.
+  \item[URIs] any string enclosed between the characters '$<$' \whs '$>$'.
+\end{description}
+Any part of a triple pattern, to a maximum of two per triple, can be left
+unknown thanks to the wildcard character '*'. Any term of the query can be
+flagged in order to indicate if the term has to, must not or may appear within
+the triples in the results by using respectively the characters '+', '-', ''
+(i.e no character). Considering URIs are tokenism when indexing (e.g.
+\url{http://sindice.com/} is tokenism into ``HTTP'', ``Sindice'' and ``com''),
+the following query
+\begin{quotation}
+$<$rings$>$ $<$author$>$ ``j.r.r.\_tolkien OR tolkien'' .
+\end{quotation}
+matches the RDF graph of the Figure~\ref{fig:rdf-graph}. The object of this
+triple pattern is a literal pattern, which aims to widen the search to several
+writings of the author's name. Since SIREn is an Information Retrieval search
+engine, it processes the query as explained in Chapter~\ref{sec:IR} with set
+theory operations (i.e. conjunction, disjunction and exclusion).
+
+During indexing, it is possible to store into a specific field any text. For
+instance, one can have three different fields such as ``title'', ``author'' and
+``abstract'' for the entities in the Figure~\ref{fig:entities}. This way the
+abstract of the entity \emph{\_:bnode1} would fall into its field, allowing for
+more precise search. A field is identified with the special Lucene character
+semi-colon, ':'. For instance the term ``hobbit'' within the entity \_:bnode1
+can be refer ed as \emph{abstract{\bfseries :}hobbit}. 
+
+\subsection{Added Features}
+
+The SIREn query parser has been extended to support commonly used feature in
+RDF and also to be more expressive. In this section three added features are
+presented.
+
+\paragraph{URI Pattern}
+
+As with literal patterns, this extension allows to use Boolean operators within
+an URI. It is then possible for example to search for RDF graphs where some
+URI(s) contains both the terms \emph{lord} and \emph{rings} by entering the
+query \emph{$<$lord AND rings$>$ * * .}$\;$.
+
+\paragraph{Qualified Name - QName}
+
+As explained in the introduction to Information Retrieval in
+Chapter~\ref{sec:IR}, a QName is a term that is used to abbreviate an URI.
+Whiting an URI, it is possible to use a QName by appending the term to the
+semi-colon character. The QName is replaced at query processing time by the
+correct namespace thanks to a file containing the mapping between a QName and
+its expansion.
+This expansion is performed on any string that matches a QName format only
+within an URI, and in that case leaves the term unchanged if no mapping key has
+been found. Restricting the substitution to URIs allows to QNames-like strings
+within literals.
+
+A QName can possess several expansion, e.g. the web
+site\footnote{QNames namespace lookup for developers:
+\url{http://prefix.cc/}} reports that the QName \emph{dbpedia} is mapped to
+three possible expansion
+\begin{enumerate}
+  \item \url{http://dbpedia.org/resource/}
+  \item \url{http://dbpedia.org/dbprop/}
+  \item \url{http://dbpedia.org/property/}
+\end{enumerate}
+In order to deal with multi-valued QNames, all possible expansion replace their
+QName, linked together with the Boolean operation OR. For instance the query
+\begin{quotation}
+* $<$\textcolor{red}{dbpedia}:\textcolor{blue}{title}$>$ * .
+\end{quotation}
+is expanded to
+\begin{quotation}
+\resizebox{\linewidth}{!}{%
+* $<$\textcolor{red}{\url{http://dbpedia.org/resource/}}
+\textcolor{blue}{title} OR
+\textcolor{red}{\url{http://dbpedia.org/dbprop/}}\textcolor{blue}{title} OR
+\textcolor{red}{\url{http://dbpedia.org/property/}}\textcolor{blue}{title}$>$ * .
+}%
+\end{quotation}
+This expansion is rendered possible thanks to the URI pattern extension of an
+URI presented previously. Thus it allows to perform more generic search and to
+abstract from the actual schema definition the RDF graphs possess.
+
+\paragraph{Multi-field search}
+
+SIREn is based on Lucene, which data representation model uses fields. Fields
+allows to organize logically the information. For example we can split the
+documents from the collection according to their dataset, so that all documents
+from a same dataset are within the same field.
+
+However spitting information into fields implies that we lose a global view of
+the data. To cope with this drawback, we have implemented an extension to the
+query parser that search documents across fields, enabling the retrieval of
+triple patterns regardless of the field it actually occurs. Moreover depending
+on the reliability or the importance that is given to field, it is possible to
+affect a \emph{weight} value to that field.
+
+As an example, below is shown a RDF graph with two triples taken from two
+different datasets: ``dataset1'' and ``dataset2''
+\begin{quotation}
+dataset1: $<$http://s$>$ $<$http://p1$>$ ``literal'' .
+
+dataset2: $<$http://s$>$ $<$http://p2$>$ $<$http://o2$>$ .
+\end{quotation}
+While the query with two triple patterns
+\begin{quotation}
+($<$http://s$>$ * 'literal' .) AND ($<$http://s$>$ *
+$<$\textcolor{blue}{http://o2}$>$ .)
+\end{quotation}
+matches the previous graph thanks to the implicit link, i.e., the first pattern
+returns the triple from dataset1 and the second one from dataset2, the query
+\begin{quotation}
+($<$http://s$>$ * 'literal' .) AND ($<$http://s$>$ *
+$<$\textcolor{blue}{http://o1}$>$ .)
+\end{quotation}
+does not, since the second pattern cannot be found.
+
+\section{Entity Query Parser}
+\label{sec:ent-qparser}
+
+With the semantic web representation model such as RDF, we can describe people,
+products, countries or any other entities. When searching for information we
+often want results that are relevant for a specific entity, any other results
+polluting the information retrieved. As a first step, SIREn is indexing
+entities with an entity-centric rather than a document-centric model. The
+second step is to build a parser that handles queries for an entity.
+
+The entity query parser is being developed which goal is to matcher patterns for
+an entity. For example we will able to formulate the query ``Find all the
+people within DERI that are from France''. To better represent relations
+between an entity and other entities or objects, we use a one-to-many
+representation model called the \emph{tabular} format. The
+Table~\ref{tab:tabular-format} depicts triples in a document-centric
+representation on the left, and its tabular view on the right. With the tabular
+format we define as a field the predicate (i.e., attribute) and store within
+that field all the related objects. To answer the previous example query, we
+can have two fields in the entity description of DERI, the countries and the
+people fields.
+
+For such queries to be efficient the schema of the data has to be known. As
+such this parser is intended to be use over specific datasets, such as the
+intranet of a company.
+
+\begin{table}
+\ra{0.3}
+\centering
+\begin{tabular}{lllc@{\hs}ll}
+\toprule
+\multicolumn{3}{c}{Document-centric} & \phantom{a} & \multicolumn{2}{c}{Tabular
+format} \\
+$<$ s $>$ & $<$ p1 $>$ & $<$ o1 $>\;.$ & \phantom{a} &
+\multirow{2}{*}{$<$ o1 $> \; <$ o2 \; o3 $>$} \\
+$<$ s $>$ & $<$ p2 $>$ & $<$ o2 $> \; <$ o3 $>\;.$ & \phantom{a} & & \\
+\bottomrule
+\end{tabular}
+\caption{The tabular format data representation.}
+\label{tab:tabular-format}
+\end{table}

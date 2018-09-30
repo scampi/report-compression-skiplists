@@ -1,0 +1,268 @@
+\section{Variable Byte}
+
+Variable Byte (VByte) is an easy to implement algorithm, which makes it a
+commonly used compression algorithm. VByte is a byte-aligned, i.e compression
+at the byte level, algorithm that compress lists of values one integer at a
+time. A compressed byte is divided in two parts
+\begin{enumerate}
+  \item the most significant bit is a \emph{flag} bit.
+  \item the 7 bits left are used to store the integer.
+\end{enumerate}
+For an integer v to be compressed, the lower 7 bits are stored in one byte. The
+flag is put at
+\begin{inparaenum}[(a)]
+\item 1 if there is still bits remaining in v or 
+\item 0 otherwise.
+\end{inparaenum}
+This process is repeated until no more bits are left. The Table~\ref{tab:vbyte}
+reports the algorithms used for VByte. The Algorithm~\ref{lst:vbyte-cmp}
+compress an array $L$ of integers into an array $LC$ of bytes. The loop from
+line 3 to 7 continues as long as there are still 7 bits left int the current
+integer $int$, where it outputs the 7 lower bits of int into LC and put the flag
+at 1. The Algorithm~\ref{lst:vbyte-dcmp} decompress all the array LC. The
+line 5 to 9 loops as long as the flag is at 1, meaning that the next byte data
+belongs to a same integer value.
+
+This algorithm presents the positive aspects of an easy implementation and of
+good compression and decompression overall. However this algorithm possesses two
+drawbacks.
+The branching condition leads to branch mispredictions which makes it slower
+than CPU optimised techniques such as \emph{Frame Of Reference}-based
+algorithms presented next. Moreover, VByte has a poor compression ratio since
+it requires one full byte to encode small integers (i.e., $\forall n < 2^7$).
+
+\begin{table}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}[T]{p{0.5\linewidth}p{0.5\linewidth}}
+\begin{minipage}[T]{\linewidth}
+\vspace{-1.9cm}
+\begin{algorithm}[H]
+\SetAlFnt{\tiny}
+\DontPrintSemicolon
+\KwIn{An array L of integers}
+\KwOut{An array LC of bytes}
+
+$i \leftarrow 0$\;
+\For{$int \in L$}{
+  \While{$(int \:\&\: 127) \neq 0$}{
+      $LC[i] \leftarrow (int \:\&\: 127) \mid 128$\;
+      $x \leftarrow int \gg 7$\;
+      $i \leftarrow i + 1$\;
+  }
+  $LC[i] \leftarrow int$\;
+}
+\caption{Compression algorithm.}
+\label{lst:vbyte-cmp}
+\end{algorithm}
+\end{minipage}
+&
+\begin{minipage}[T]{\linewidth}
+\begin{algorithm}[H]
+\SetAlFnt{\tiny}
+\DontPrintSemicolon
+\KwIn{An array LC of bytes}
+\KwOut{An array L of integers}
+\SetKwFunction{len}{len}
+\SetKwFunction{poll}{poll}
+
+\For{$i$ \KwTo $\len(L)$}{
+  $b \leftarrow \poll(LC)$\;
+  $dec \leftarrow b \:\&\: 127$\;
+  $shift \leftarrow 7$\;
+  \While{$(b \:\&\: 128 = 1)$}{
+  	$b \leftarrow \poll(LC)$\;
+  	$dec \leftarrow dec \mid ((b \:\&\:127) \ll shift)$\;
+  	$shift \leftarrow shift+7$\;
+  }
+}
+\caption{Decompression algorithm. The functions \texttt{len} returns the size of
+an array, and \texttt{poll} retrieves and removes the first element of an array.}
+\label{lst:vbyte-dcmp}
+\end{algorithm}
+\end{minipage}\\
+\end{tabular}
+}%
+\caption{Variable Byte algorithms. L denotes the array to be compressed, LC its
+compressed array. The Algorithm~\ref{lst:vbyte-dcmp} decompress the values in
+LC, returned by the Algorithm~\ref{lst:vbyte-cmp}.}
+\label{tab:vbyte}
+\end{table}
+
+\section{Rice}
+
+In Rice, an integer $n$ is encoded in two parts: a quotient $q = \lfloor
+\frac{n}{2^b} \rfloor$ and a remainder $r = n \bmod 2^b$. The quotient is
+stored in unary format using $q + 1$ bits while the remainder is store in
+binary format using $b$ bits. In unary format, a integer $n$ is represented
+with n consecutive bits at 1, and a final bit at 0, serving as the termination
+criterion. In our implementation, the parameter $b$ is chosen per block such
+that $2^b$ is close to the average value of the block.
+
+The main advantages of Rice is to achieve a very good compression ratio.
+However, it is in general the slowest method in term of compression and
+decompression. The main reason is that Rice needs to manipulate the unary word
+one bit at a time during both compression and decompression, which is very
+demanding in CPU cycles.
+
+\section{Simple Family}
+
+The idea behind the Simple coding is to pack as many integers as possible into
+one machine word (being 32 or 64 bits). We describe one Simple coding method
+(S-64) based on 64-bit machine words~\cite{anh:2010:simple64}. In the
+experiments, we report only S-64 results since its overall performance was
+always superior to Simple9~\cite{anh:2005:simple9}. In S-64, each word
+consists of 4 status bits and 60 data bits. The 4 status bits are used to
+encode one of the 16 possible configurations for the data bits. The
+Table~\ref{tab:s64-status} reports the 14 configurations used in S-64. For
+instance, 12 integers of 5 bits each at maximum can be encoded into a
+machine word using the Status 4. The \emph{Wasted Bits} row highlights the
+problem encountered with some configurations, as some bits are left unused with
+a straight forward approach. A solution is to allow the last integer of the
+configuration to use these extra bits.
+
+On top of providing a good compression ratio, decompression is done efficiently
+by reading one machine word and by using a precomputed lookup table over the
+status bits in order to execute the appropriate optimised routine (one routine
+per configuration) to decode the data bits using shift and mask operations
+only. However, Simple coding performs one table lookup per machine word which
+costs more CPU cycles than the other highly CPU optimised techniques presented
+next.
+
+One disadvantage is that compression cannot be done efficiently. The typical
+implementation is to use a sliding window over the stream of integers and to
+find the best configuration, i.e., the one providing the best compression
+ratio, for the current window. This generally requires repetitive try and
+error iterations over the possible configurations at each new window.
+
+\begin{table}
+\centering
+\begin{tabular}{lc@{\hs}rrrrrrrrrrrrrr}
+\toprule
+Status & \phantom{a} &0&1&2&3&4&5&6&7&8&9&10&11&12&13\\
+\cmidrule{3-16}
+Bits & \phantom{a} &1&2&3&4&5&6&7&8&10&12&15&20&30&60\\
+Group& \phantom{a} &60&30&20&15&12&10&8&7&6&5&4&3&2&1\\
+WastedBits& \phantom{a} &0&0&0&0&0&0&4&4&0&0&0&0&0&0\\
+\bottomrule
+\end{tabular}
+\caption{Status options used in Simple-64 coding scheme. Bits refers to the
+number of bits an integer is coded with. Group refers to the number of integers
+that can be put into one machine word. WastedBits reports the number of bits
+wasted for each status.}
+\label{tab:s64-status}
+\end{table}
+
+\section{Frame Of Reference}
+
+Frame Of Reference (FOR) determines the range of possible values in a sub-block,
+called a \emph{frame}, and maps each value into this range by storing just
+enough bits to distinguish the values~\cite{goldstein:1998:icde}. In
+the case of the delta-encoded list of values, since the probability
+distribution generated by taking the delta tends to be naturally monotonically
+decreasing, one common practice~\cite{Nzukowski:2006:pfor,anh:2010:simple64}
+is to choose as frame the range $[0, max]$ where $max$ is the largest number
+in the group of delta values.\footnote{This assumes that a group of values
+will always contain $0$, which is not always the case. However, we found that
+taking the real range $[min, max]$ was only reducing the index size by 0.007\%
+while increasing the complexity of the algorithm.}
+
+Given a frame $[0, max]$, FOR needs $\lceil \log_2(max + 1) \rceil$ bits,
+called a \emph{bit frame}, to encode each integer in a
+block. The main disadvantage of FOR is that it is sensitive to outliers in the
+group of values. For example, if a block of 1024 integers contains 1023
+integers inferior to 16, and one value superior to 128, then the bit frame will
+be $\lceil \log_2(128 + 1) \rceil = 8$, wasting 4 bits for each other values.
+
+However, compression and decompression is done very efficiently using
+highly-optimised routines~\cite{Nzukowski:2006:pfor} which avoid branching
+conditions. Each routine is loop-unrolled to encode or decode $m$ values using
+shift and mask operations only. Listing~\ref{lst:compression-routine} and
+\ref{lst:decompression-routine} show the routines to encode or decode 8
+integers with a bit frame of 3. There is a compression and decompression
+routines for each bit frame.
+
+Given a block of $n$ integers, FOR determines a frame of reference for the
+block and encodes the block by small iterations of $m$ integers using the same
+compression routine at each iteration. Usually, and for questions of
+performance, $m$ is chosen to be a multiple of 8 so that the routines match
+byte boundaries. In our implementation, FOR relies on routines to encode and
+decode 32 values at a time.
+
+The selection of the appropriate routine for a given bit frame is done using a
+precomputed lookup table. The compression step performs one pass only over the
+block to determine the bit frame. Then, it selects the routine associated to
+the bit frame using the lookup table. Finally, the bit frame is stored using
+one byte in the block header and the compression routine is executed to encode
+the block. During decompression, FOR reads the bit frame, performs one table
+lookup to select the decompression routine and executes iteratively the
+routine over the compressed sub-blocks.
+
+\begin{fileformat}
+  \centering
+  \begin{minipage}[t]{0.47\linewidth}
+\begin{lstlisting}[frame=lines,language=Java,caption=Loop unrolled compression routine that encodes 8 integers using 3 bits each,label=lst:compression-routine]
+encode3(int[] i, byte[] b)
+	b[0] = (i[0] & 7) 
+	     | ((i[1] & 7) << 3) 
+	     | ((i[2] & 3) << 6);
+	b[1] = ((i[2] >> 2) & 1) 
+	     | ((i[3] & 7) << 1) 
+	     | ((i[4] & 7) << 4) 
+	     | ((i[5] & 1) << 7);
+	b[2] = ((i[5] >> 1) & 3) 
+	     | ((i[6] & 7) << 2) 
+	     | ((i[7] & 7) << 5);
+\end{lstlisting}
+  \end{minipage}
+  \quad%
+  \begin{minipage}[t]{0.47\linewidth}
+\begin{lstlisting}[frame=lines,language=Java,caption=Loop unrolled decompression routine that decodes 8 integers represented by 3 bits each,label=lst:decompression-routine]
+decode3(byte[] b, int[] i)
+	i[0] = (b[0] & 7);
+	i[1] = (b[0] >> 3) & 7;
+	i[2] = ((b[1] & 1) << 2) 
+	      | (b[0] >> 6);
+	i[3] = (b[1] >> 1) & 7;
+	i[4] = (b[1] >> 4) & 7;
+	i[5] = ((b[2] & 3) << 1) 
+	      | (b[1] >> 7);
+	i[6] = (b[2] >> 2) & 7;
+	i[7] = (b[2] >> 5) & 7;
+\end{lstlisting}
+  \end{minipage}
+\end{fileformat}
+
+\section{Patched Frame Of Reference}
+
+Patched Frame Of Reference (PFOR)~\cite{Nzukowski:2006:pfor} is an extension of
+FOR less vulnerable to outliers in the value distribution. PFOR stores
+outliers as exceptions such that the frame of reference $[0, max]$ is greatly
+reduce. PFOR first determines the smallest $max$ value such that the best
+compression ratio is achieved based on an estimated size of the frame and of
+the exceptions. Compressed blocks are divided in two: one section where the
+values are stored using FOR, a second section where the exceptions, i.e., all
+values superior to $max$, are encoded using 8, 16 or 32 bits. The unused slots
+of the exceptions in the first block section are used to store the offset of
+the next exceptions in order to keep a linked list of exception offsets. In
+the case where the unused slot is not large enough to store the offset of the
+next exceptions, a \emph{compulsive exception}~\cite{Nzukowski:2006:pfor} is
+created.
+
+For large blocks, the linked list approach for keeping track of the position
+of the exceptions is costly when exceptions are sparse since a large number of
+compulsory exceptions has to be created. \cite{Nzukowski:2006:pfor} proposes
+to use blocks of 128 integers to minimise the effect. \cite{yan:2009:www}
+proposes a non-compulsive approach where the exceptions are stored along with
+their offset in the second block section. We choose the latest approach since
+it has been shown to provide better performance~\cite{yan:2009:www}.
+
+The decompression is performed efficiently in two phases. First, the list of
+values are decoded using the FOR routines. Then, the list of values is
+\emph{patched} by:
+\begin{inparaenum}
+\item decompressing the exceptions and their offsets and 
+\item replacing in the list the exception values.
+\end{inparaenum}
+However, the compression phase cannot be efficiently implemented. The main
+reason is that PFOR requires complex heuristics to find the best bit frame and
+set of exceptions for a block.

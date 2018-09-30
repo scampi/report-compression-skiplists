@@ -1,0 +1,24 @@
+
+\begin{tikzpicture}
+\begin{axis}[
+ylabel=$q/s$,
+x tick label style={font=\scriptsize},
+legend style={at={(0.5,1.13)}, anchor=north, legend columns=-1},
+xtick={1,2,4,8,16},
+%ybar,
+ymajorgrids=true,
+%bar width=5pt,
+]
+
+\addplot[red,mark=square*]
+coordinates {(1, 66.884) (2, 198.906) (3, 292.334) (4, 145.492) (5, 94.124)};
+\addplot[blue,mark=*]
+%coordinates {(1, 56.163) (2, 209.161) (3, 272.554) (4, 31.234) (5, 120.493)};
+coordinates {(1, 56.163) (2, 209.161) (3, 272.554) (4, 191.828) (5, 120.493)};
+\addplot[brown,mark=triangle*]
+coordinates {(1, 28.062) (2, 244.529) (3, 230.814) (4, 152.311) (5, 105.441)};
+
+\legend{Small, Medium, Large}
+
+\end{axis}
+\end{tikzpicture}%

@@ -1,0 +1,114 @@
+\begin{table*}[h!]
+	\centering
+	\ra{1.3}
+	\resizebox{0.8\linewidth}{!}{%
+	\subfloat[Wikipedia]{%
+	\begin{tabular}{@{}rcr@{\hs}rcr@{\hs}r@{\hs}r@{\hs}r@{\hs}}
+	\toprule
+	& \phantom{a} 
+	& \multicolumn{2}{c}{Time (s)} 
+	& \phantom{a} 
+	& \multicolumn{4}{c}{Sizes (GB)} \\ 
+	\cmidrule{3-4} \cmidrule{6-9}
+	Method && Total & Opt && Doc & Frq & Pos & Total \\
+	\midrule
+	AFOR-1 && 410 & 114&& 0.353 & 0.109 & 0.698 & 1.160\\
+	AFOR-2 && 409 & 128&& 0.340 & 0.093 & 0.655 & 1.088 \\
+	FOR && 443 & 128&& 0.426 & 0.178 & 0.811 & 1.415\\
+	PFOR && 438 & 127 && 0.428 & 0.106 & 0.745 & 1.279\\
+	Rice && 492 & 228 && 0.332 & 0.061 & 0.600 & 0.993\\
+	S9-64 && 462 & 124&& 0.356 & 0.103 & 0.662 & 1.121\\ 
+	VByte && 433 & 132 && 0.402 & 0.291 & 0.714 & 1.407\\      
+	\bottomrule
+	\end{tabular}
+	}\quad%
+	\subfloat[Blog]{%
+	\begin{tabular}{@{}rcr@{\hs}rcr@{\hs}r@{\hs}r@{\hs}r@{\hs}}
+	\toprule
+	& \phantom{a} 
+	& \multicolumn{2}{c}{Time (s)} 
+	& \phantom{a} 
+	& \multicolumn{4}{c}{Sizes (GB)} \\ 
+	\cmidrule{3-4} \cmidrule{6-9}
+	Method && Total & Opt && Doc & Frq & Pos & Total \\
+	\midrule
+	AFOR-1 && 12337 & 4813&& 7.868 & 2.366 & 21.058 & 31.292 \\
+	AFOR-2 && 13040 & 4571&& 7.387 & 2.016 & 19.492 & 28.895 \\
+	FOR && 12741 & 5888&& 9.115 & 3.882 & 26.780 & 39.777 \\
+	PFOR && 13972 & 5387&& 9.097 & 2.464 & 23.975 & 35.536 \\
+	Rice && 14099 & 7127&& 7.145 & 1.546 & 18.160 & 26.851 \\
+	S9-64 && 13152 & 5414 && 7.892 & 2.197 & 19.711 & 29.800 \\
+	VByte && 12320 & 5092 && 8.630 & 5.610 & 22.063 & 36.303 \\
+	\bottomrule
+	\end{tabular}
+	}}\quad%
+	
+	\subfloat[DBpedia]{%
+	\resizebox{.3\linewidth}{!}{%
+	\begin{tabular}{@{}rcr@{\hs}rcr@{\hs}r@{\hs}r@{\hs}r@{\hs}r@{\hs}r@{}}
+	\toprule
+	& \phantom{a} 
+	& \multicolumn{2}{c}{Time (s)} 
+	& \phantom{a} 
+	& \multicolumn{6}{c}{Sizes (GB)} \\ 
+	\cmidrule{3-4} \cmidrule{6-11}
+	Method && Total & Opt && Ent & Frq & Att & Val & Pos & Total \\
+	\midrule
+	AFOR-1 && 536 & 139 && 0.246 & 0.043 & 0.141 & 0.065 & 0.180 & 0.816 \\
+	AFOR-2 && 540 & 142 && 0.229 & 0.039 & 0.132 & 0.059 & 0.167 & 0.758 \\
+	AFOR-3 && 562 & 158 && 0.229 & 0.031 & 0.131 & 0.054 & 0.159 & 0.736 \\
+	FOR && 594 & 158 && 0.315 & 0.061 & 0.170 & 0.117 & 0.216 & 1.049 \\
+	PFOR && 583 & 167 && 0.317 & 0.044 & 0.155 & 0.070 & 0.205 & 0.946 \\
+	Rice && 612 & 239 && 0.240 & 0.029 & 0.115 & 0.057 & 0.152 & 0.708 \\
+	S-64 && 558 & 162 && 0.249 & 0.041 & 0.133 & 0.062 & 0.171 & 0.791 \\
+	VByte && 577 & 164 && 0.264 & 0.162 & 0.222 & 0.222 & 0.245 & 1.335 \\
+	\bottomrule
+	\end{tabular}
+	}}\quad%
+	\subfloat[Geonames]{%
+	\resizebox{.3\linewidth}{!}{%
+	\begin{tabular}{@{}rcr@{\hs}rcr@{\hs}r@{\hs}r@{\hs}r@{\hs}r@{\hs}r@{}}
+	\toprule
+	& \phantom{a} 
+	& \multicolumn{2}{c}{Time (s)} 
+	& \phantom{a} 
+	& \multicolumn{6}{c}{Sizes (GB)} \\ 
+	\cmidrule{3-4} \cmidrule{6-11}
+	Method && Total & Opt && Ent & Frq & Att & Val & Pos & Total \\
+	\midrule
+	AFOR-1 && 729 & 114 && 0.129 & 0.023 & 0.058 & 0.025 & 0.025 & 0.318 \\
+	AFOR-2 && 732 & 107 && 0.123 & 0.023 & 0.057 & 0.024 & 0.024 & 0.307 \\
+	AFOR-3 && 724 & 103 && 0.114 & 0.006 & 0.056 & 0.016 & 0.008 & 0.256 \\
+	FOR && 748 & 102 && 0.150 & 0.021 & 0.065 & 0.025 & 0.023 & 0.349 \\
+	PFOR && 741 & 134 && 0.154 & 0.019 & 0.057 & 0.022 & 0.023 & 0.332 \\
+	Rice && 787 & 183 && 0.133 & 0.019 & 0.063 & 0.029 & 0.021 & 0.327 \\
+	S-64 && 740 & 123 && 0.147 & 0.021 & 0.058 & 0.023 & 0.023 & 0.329 \\
+	VByte && 737 & 141 && 0.216 & 0.142 & 0.143 & 0.143 & 0.143 & 0.929 \\
+	\bottomrule
+	\end{tabular}
+	}}\quad%
+	\subfloat[Sindice]{%
+	\resizebox{.3\linewidth}{!}{%
+	\begin{tabular}{@{}rcr@{\hs}rcr@{\hs}r@{\hs}r@{\hs}r@{\hs}r@{\hs}r@{}}
+	\toprule
+	& \phantom{a} 
+	& \multicolumn{2}{c}{Time (s)} 
+	& \phantom{a} 
+	& \multicolumn{6}{c}{Sizes (GB)} \\ 
+	\cmidrule{3-4} \cmidrule{6-11}
+	Method && Total & Opt && Ent & Frq & Att & Val & Pos & Total \\
+	\midrule
+	AFOR-1 && 13734 & 1816 && 2.578 & 0.395 & 0.942 & 0.665 & 1.014 & 6.537 \\
+	AFOR-2 && 13975 & 1900 && 2.361 & 0.380 & 0.908 & 0.619 & 0.906 & 6.082 \\
+	AFOR-3 && 13847 & 1656 && 2.297 & 0.176 & 0.876 & 0.530 & 0.722 & 5.475 \\
+	FOR && 14978 & 1749 && 3.506 & 0.506 & 1.121 & 0.916 & 1.440 & 8.611 \\
+	PFOR && 14839 & 2396 && 3.221 & 0.374 & 1.153 & 0.795 & 1.227 & 7.924 \\
+	Rice && 15571 & 3281 && 2.721 & 0.314 & 0.958 & 0.714 & 0.941 & 6.605 \\
+	S-64 && 14107 & 2163 && 2.581 & 0.370 & 0.917 & 0.621 & 0.908 & 6.313 \\
+	VByte && 13223 & 3018 && 3.287 & 2.106 & 2.411 & 2.430 & 2.488 & 15.132 \\
+	\bottomrule
+	\end{tabular}
+	}}
+	\caption{Total indexing time, optimise time and index size.}
+	\label{tab:indexing-performance}
+\end{table*}

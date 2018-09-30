@@ -1,0 +1,151 @@
+\chapter{SIREn Query Parser}{
+The query parser is used in SIREn in order to allow people to interact with its
+index. However we must keep in mind that Sindice, which uses SIREn for
+searching and browsing purpose, is aimed to be used as a web service by machine
+as well. In this section, we present a query parser that matches triple
+patterns in datasets before describing a parser that matches entities.
+}
+\label{chap:siren-extension}
+\input{conclusion/siren}
+
+\chapter{Conclusion}{
+In the recent years, the amount of semantic data has considerable increased.
+More and more web sites are exporting their data using RDF, as the power of the
+semantic web is increasingly attractive: to be able to efficiently search
+across multiple data sources specific information, and to retrieve relevant
+results hereafter. The semantic Web is a challenging and expanding research
+domain. The Web as we know it is undergoing a radical change, and the semantic
+web is contributing a lot to it.
+
+People are publishing RDF data following the best practices of Linked Data. The
+Linking Open Data Cloud is a huge gathering of inter-connected semantic data
+sources. Applications can use this linked data and provide a concrete benefit
+to the way we use the Web. \emph{Sig.ma} is a use case for a mashup application
+that shows the power of the semantic. Its purpose is to search across many
+data sources, and to provide information organized around \emph{entities},
+e.g., a product, a person or any other concept. To be able to efficiently use
+this collection of knowledge of we scale so that applications like Sig.ma are
+viable is an important and challenging matter. Sig.ma is built on
+\emph{Sindice}, a web service that provides search and retrieval capabilities
+over semantic data. The web service uses \emph{SIREn} at its core, an
+Information Retrieval search engine, to query an \emph{information need} and
+to retrieve \emph{relevant} documents.
+
+In this report we presented data structures that are commonly used in
+Information Retrieval search engines. We also discussed about some of the
+focusing points for optimizing these structures in order to have more efficient
+and scalable IR search engines like SIREn.
+We presented AFOR, a compression method that provides both fast compression
+(increases index updates) and decompression (increases query throughput) speed,
+and yet with a high compression ratio. We proposed SkipBlock, a novel
+self-indexing model where some configurations carefully chosen provide faster
+random lookups from an inverted list and a more compact structure than the
+original Skip List model.}
+\label{chap:conclusion}
+
+\section{Summary of the Report}
+
+The flow of this report reflects the flow of a research work by
+\begin{inparaenum}[(1)]
+\item describing a problem and why current related work do not answer the
+requirements;
+\item proposing a solution to the problem; and
+\item proving the previous claims by performing comparative benchmarks.
+\end{inparaenum}
+Following this pattern, we proposed two novel structures, where both have the
+common goal to reduce the amount of data read in order to increase the IO
+throughput. 
+\begin{description}
+\item[Compression Technique] compression techniques do not only aim at reducing
+the storage space, but also at increasing the IO access time. Reading/writing
+less data from/to disk with a high performance algorithm reduce the wasted time
+on IO access. Thus the performance of operations that directly depends on some
+data to process is improved. We proposed \emph{AFOR}, a new compression class
+that can increase query throughput compared to other state of the art
+algorithms thanks to a more ``close-to-data'' compression.
+\item[Self-Indexing Technique] query processing returns relevant information by
+applying some operations on the inverted lists. However not all the data that
+inverted lists have is necessary, thus reading or decoding such data is a
+wasted time. Self-indexing is a technique that allows to skip over portions of
+the inverted lists that are unnecessary for the processing of a query. We
+proposed a new self-indexing model, called \emph{SkipBlock}, that aims to
+improve the original model Skip List by taking into consideration the
+compression algorithm used on the inverted lists. We will also present at
+\emph{The $33^{rd}$ European Conference on Information Retrieval}
+(ECIR)\footnote{ECIR: \url{http://www.ecir2011.dcu.ie/}} the paper which
+introduced the model (Appendix~\ref{app:SkipBlock-paper}).
+\end{description}
+
+\section{Future Work}
+
+The Information Retrieval domain for Semantic Data covers not only what has
+been presented in this report but a wider area of problems. In the coming
+months, I will stay within DERI and work on different subjects. In this section
+I list a number of the possible future work.
+\begin{itemize}
+  \item Finalize the AFOR implementation to make it into a production ready
+  state.
+  \item Continue the research on SkipBlock, which will consists in optimizing
+  search strategies and finding more adapted ones.
+  \item Implement a novel SIREn index structure that will improve query
+  processing performance.
+  \item Start researching on dynamic query processing.
+\end{itemize}
+
+\section{Personal Benefits}
+
+My internship at DERI has been a source for new knowledge in many areas. I was
+able to deepen not only my skills in computer programming but also my
+scientific knowledge.
+\begin{description}
+\item[Computer Skills] Thanks to this internship I was able to improve my
+skills on different programming languages: in JAVA since our project SIREn
+uses it, in script shell such as bash or Ruby when writing benchmarks automating
+scripts, in a text stream editor like \emph{Sed}, very convenient for automate
+operations on large files such as logging or benchmarking results files.
+\\*[\parskip]
+Because SIREn is a system built to be highly efficient and scalable over
+millions of entities descriptions, any code that will be used within has to be
+well written. The engineer must take care of the memory and the CPU consumption
+so that the best performance is reached. Concerning JAVA there are many classes
+available to help the developer, for instance it is better to use the class
+\texttt{StringBuilder}\footnote{\texttt{StringBuilder}:
+\url{http://tinyurl.com/3xbkvw6}} when operating of very large strings than to
+use the \texttt{String} type.
+\\*[\parskip]
+At last it is important to comment the code written, not only for people using
+it later on but also for ourselves since it permits to know its structure or
+what are the possible optimizations. As part of commenting the code, writing
+meaningful descriptions in SVN logs helps to keep track of what was done and
+the reason of some changes.
+\item[Engineering Skills] For the last months of my internship I was given a
+project (the SkipBlock model) to work on alone. This experience showed me the
+different points to take care of when managing projects, such as coordinating
+the development with some deadline. Also when implementing a solution, there
+are sometimes a difference between the model and the real results of the
+implementations. This leads to the necessity of taking decisions in order to
+understand why it is so and to be able to explain clearly the reasons. Moreover
+it is frequent when implementing under a deadline pressure that the code isn't
+optimized. In a short term this is not a problem, but in a long term it becomes
+one as a \emph{technical debt}\footnote{Technical Debt:
+\url{http://www.martinfowler.com/bliki/TechnicalDebt.html}}, since a messy code
+will end up in re-factoring.
+\item[Research Skills] DERI made me aware of the challenges that we can expect
+from the research environment, such as a research dependent implementations
+which change a project flow, since time constraints cannot be put on tasks
+because the expecting difficulty and problems are still unknown. Moreover
+working on the SIREn project allowed me to take part into the publication
+process of scientific papers. These points as well as the scientific domain of
+DERI (Semantic Web) and of the project (IR plus highly efficient structures)
+gave me the desire to keep on working in the DI2 team for the following year.
+\item[Scientific Knowledge] Thanks to this internship I was able to gain more
+knowledge on the interesting Information Retrieval domain. Moreover the
+internship made me aware of the Semantic Web infrastructure and of all the
+possibilities it provides.
+\item[Human Skills] A project cannot be successful unless the communication
+between members is clear and efficient. A good communication flow allows
+members to know the big picture of the research, and what should be working on
+each individuals. DERI is a multi-cultural research institute, with
+people form all around the world. This working environment was a good basis for
+improving my English.
+\end{description}

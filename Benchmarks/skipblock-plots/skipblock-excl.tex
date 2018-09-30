@@ -1,0 +1,64 @@
+\begin{table}
+\centering
+\ra{1.1}
+\subfloat[Skip List self-indexing model.]{
+\resizebox{0.7\linewidth}{!}{%
+\begin{tabular}{lllllll}
+\toprule
+Operands & $\vert I \vert$ & MB & Scans & Size (in MB) & Time & Ops \\
+\multirow{6}{*}{HIGH:HIGH} & 16 & \numprint{6.168} & \numprint{36798956} &
+150.15 & 17.078 s $\pm$ 147.674 ms & \numprint{39711326} \\ & 32 & \numprint{3.615} & \numprint{37906536} & 68.43 & 18.508 s $\pm$ 23.425 ms & \numprint{39451909} \\
+ & 256 & \numprint{1.248} & \numprint{42539161} & 15.0 & 17.122 s $\pm$ 25.578 ms & \numprint{42863287} \\
+ & 512 & \numprint{0.765} & \numprint{44390563} & 7.47 & 17.128 s $\pm$ 73.775 ms & \numprint{44588824} \\
+ & 1024 & \numprint{0.466} & \numprint{46776308} & 3.73 & 17.297 s $\pm$ 93.803 ms & \numprint{46896776} \\
+& 4096 & \numprint{0.194} & \numprint{54212443} & 0.941 & 16.836 s $\pm$ 45.173
+ms & \numprint{54261457} \\
+\\
+\multirow{6}{*}{LOW:HIGH} & 16 & \numprint{0.002} & \numprint{57} & 68.37 &
+201.953 us $\pm$ 72.146 us & \numprint{429} \\ & 32 & \numprint{0.003} & \numprint{121} & 31.63 & 167.969 us $\pm$ 78.125 us & \numprint{662} \\
+& 256 & \numprint{0.012} & \numprint{1017} & 6.82 & 276.294 us $\pm$ 114.937 us & \numprint{3348} \\
+& 512 & \numprint{0.018} & \numprint{1529} & 3.4 & 345.850 us $\pm$ 464.155 us & \numprint{5574} \\
+& 1024 & \numprint{0.022} & \numprint{3577} & 1.7 & 444.019 us $\pm$ 114.084 us & \numprint{9140} \\
+& 4096 & \numprint{0.078} & \numprint{11769} & 0.432 & 1.320 ms $\pm$ 163.548 us
+& \numprint{31796} \\
+\bottomrule
+\end{tabular}
+\label{app:skiplist-excl}
+}}\quad
+\subfloat[SkipBlock self-indexing model. \emph{C} gives the structure's
+configuration with the size of a block $B$ and the inverse probability $p$.]{
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lllclllllclllll}
+\toprule Operands & $\vert I \vert$ & C & \phantom{a} &
+\multicolumn{5}{c}{$I_2$} & \phantom{a} & \multicolumn{5}{c}{$I_3$} \\
+ \cmidrule{5-9} \cmidrule{11-15}
+ & & & \phantom{a} & MB & Scans & Size (in MB) & Time & Ops
+ & \phantom{a} & MB & Scans & Size (in MB) & Time & Ops \\
+\multirow{6}{*}{HIGH:HIGH} & 16 & B=4 p=4 & \phantom{a} & \numprint{7.896} &
+\numprint{35261542} & 247.17 & 20.375 s $\pm$ 201.675 ms & \numprint{38711122} & \phantom{a} & \numprint{25.704} & \numprint{29387051} & 959.1 & 20.421 s $\pm$ 107.201 ms & \numprint{42111448} \\ & 32 & B=8 p=4 & \phantom{a} & \numprint{4.919} & \numprint{37132956} & 136.13 & 20.849 s $\pm$ 103.259 ms & \numprint{38938380} & \phantom{a} & \numprint{14.193} & \numprint{32967483} & 491.09 & 21.074 s $\pm$ 43.166 ms & \numprint{39573145} \\
+ & 256 & B=32 p=8 & \phantom{a} & \numprint{0.936} & \numprint{42438570} & 18.83 & 20.498 s $\pm$ 77.985 ms & \numprint{42677604} & \phantom{a} & \numprint{3.996} & \numprint{37138012} & 93.35 & 20.083 s $\pm$ 97.600 ms & \numprint{38722432} \\
+ & 512 & B=64 p=8 & \phantom{a} & \numprint{0.517} & \numprint{44344695} & 9.39 & 19.838 s $\pm$ 100.887 ms & \numprint{44475347} & \phantom{a} & \numprint{2.513} & \numprint{38961314} & 49.9 & 19.741 s $\pm$ 49.508 ms & \numprint{39795225} \\
+ & 1024 & B=64 p=16 &
+ \phantom{a}&\numprint{0.296}&\numprint{46759073}&4.28&20.694 s $\pm$ 56.040 ms&\numprint{46831641}&
+ \phantom{a}&\numprint{2.376}&\numprint{38961698}&41.53&20.269 s $\pm$ 39.224 ms&\numprint{39771744}\\
+ & 4096 & B=256 p=16 &
+\phantom{a}&\numprint{0.096}&\numprint{54205740}&1.076&15.826 s $\pm$ 228.631 ms&\numprint{54228258}&
+\phantom{a}&\numprint{0.919}&\numprint{42438570}&16.69&15.783 s $\pm$ 84.509 ms&\numprint{42675368}\\
+\\
+\multirow{6}{*}{LOW:HIGH} & 16 & B=4 p=4 & \phantom{a} & \numprint{0.00149}
+&\numprint{58} & 113.66 & 329.077 us $\pm$ 111.135 us & \numprint{316} & \phantom{a} & \numprint{0.00155} & \numprint{18} & 437.66 & 366.797 us $\pm$ 176.942 us & \numprint{294} \\ & 32 & B=8 p=4 & \phantom{a} & \numprint{0.00129} & \numprint{90} & 62.01 & 336.328 us $\pm$ 129.074 us & \numprint{314} & \phantom{a} & \numprint{0.00134} & \numprint{34} & 223.58 & 354.395 us $\pm$ 105.327 us & \numprint{274} \\
+& 256 & B=32 p=8 & \phantom{a} & \numprint{0.00126} & \numprint{858} & 8.52 & 231.824 us $\pm$ 163.947 us & \numprint{1070} & \phantom{a} & \numprint{0.00135} & \numprint{90} & 42.8 & 227.954 us $\pm$ 93.254 us & \numprint{337} \\
+& 512 & B=64 p=8 & \phantom{a} & \numprint{0.00133} & \numprint{1114} & 4.27 & 227.222 us $\pm$ 409.992 us & \numprint{1337} & \phantom{a} & \numprint{0.00141} & \numprint{218} & 24.15 & 217.444 us $\pm$ 65.653 us & \numprint{467} \\
+& 1024 & B=64 p=16 & \phantom{a} & \numprint{0.00172} & \numprint{2138} & 	1.95
+& 198.083 us $\pm$ 77.898 us & \numprint{2428} & \phantom{a} & \numprint{0.00186} & \numprint{218} & 20.43 & 186.499 us $\pm$ 72.585 us & \numprint{566} \\
+ & 4096 & B=256 p=16 &
+\phantom{a}&\numprint{0.00148}&\numprint{8282}&0.494& 273.047 us $\pm$ 370.889 us&\numprint{8538}&
+\phantom{a}&\numprint{0.00169}&\numprint{858}& 7.57
+&185.840 us $\pm$ 75.130 us&\numprint{1163} \\
+\bottomrule
+\end{tabular}
+\label{app:skipblock-excl}
+}}
+\caption{Exclusion operation results.}
+\label{tab:exclusion}
+\end{table}

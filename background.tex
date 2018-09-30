@@ -1,0 +1,149 @@
+\chapter{Information Retrieval}{
+Information Retrieval~\cite{buttcher:2010:IR} (IR) deals with
+representing, searching and manipulating large collections of texts. The
+Figure~\ref{fig:IR} depicts the components of an IR system. By issuing a
+\emph{query} which consists in a group of \emph{keywords} (i.e., index terms)
+to an IR system, a user expresses his need for information to the machine, i.e.
+the \emph{information need}. A \emph{term} is not necessarily a word, but can
+also be a phrase, a date or any other set of words. The machine task is to
+return a set of documents that are useful, i.e., \emph{relevant}, to the user
+in some sense. A returned document is given a \emph{score} with regards to the
+issued query, that indicates how much relevant the document is to the query.
+This way returned results can be \emph{ranked} with regards to their scores.
+
+The use of IR services is now widespread thanks to web search engines such as
+Google of Bing. Users of such services expect it to return up-to-date, accurate
+and near-instantaneous answers to a query. \cite{baeza-yates:2007:icde} reports
+that IR web search engines are still able to give good performance even at the
+web scale, which contains billions of documents. In order to achieve a
+sub-second response to the user, web search engines do not only rely on hardware
+performance, but also on the efficiency of data structures and other models that
+it will use.
+
+A major task of a search engine is to maintain and manipulate an \emph{inverted
+index} for a document collection. This data structure is the main structure
+used by a search engine for searching and ranking. As a basic function, the
+inverted index provides a mapping between the terms and the locations in the
+documents in which they occur. Terms' Locations are stored into a data
+structure called \emph{inverted lists}. The size of inverted lists are on the
+same magnitude as the collection itself. Thus search and retrieval operations
+must be done with care in order to be efficient.
+
+\begin{figure}
+\centering
+\resizebox{0.7\linewidth}{!}{%
+\includegraphics[scale=1]{pics/IR}
+}%
+\caption{Principal components of an IR system.}
+\label{fig:IR}
+\end{figure}
+}
+\label{chap:IR}
+\input{BG/IR}
+
+\chapter{Semantic Web}{
+The World Wide Web has drastically changed over the past decade. Tim
+Berners-Lee is the person who introduced the idea of linked information thanks
+to HyperText Markup Language (HTTP), which is the core of the web. The
+expectations Tim Berners-Lee had of a global information space, where any data
+can be read, written and shared is now concrete. The challenge is now to
+organize this massive amount of knowledge and to improve the interactions
+people have with this huge and complex system.
+
+A major problem of the web comes directly from its core, the HTML. Thanks to
+HTML, documents can be linked together, and a human can move from one document
+to an other with those links. A computer is able to interpret this language,
+however the content of documents is written in natural language, and is then
+only accessible to people.
+
+Most of the content on the web is only readable by people. One can read the
+information of documents and understand its meaning. On the opposite, computers
+only know to which documents a document is related to thanks to HTML markups.
+However they do not carry descriptions about the content of a document and how
+two documents are related to each other.
+
+This is the reason why Internet applications like search engines have limited
+capabilities. A search engine looks for a term T in a document, but it cannot
+search for related documents, as it lacks a formal description of the content.
+A search engine help people look for data, but in the end to find precise
+information, he has to himself follow HTML links. This is a highly consuming
+task, with limited results.
+
+A solution is to provide computers with comprehensible Web data is to describe
+documents and their relationships with meaningful metadata. The Semantic
+Web aims to merge web resources with machine-understandable data to enable
+people and computers to work in cooperation and to simplify the sharing and
+handling of large quantities of information.
+
+In this chapter I present the vision of the Semantic Web, before describing the
+various technologies in the Semantic Web. Then I present how Web data is
+represented to make it machine-understandable. Finally I present some projects
+that use Semantic Web technologies.
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{chap:SW}
+\input{BG/semweb}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{SIREn}{
+People are using more and more Semantic Web technologies and the quantity of
+Semantic data will keep on expanding. Scalable and performant RDF management
+systems are then becoming a necessity for semantic applications in order to use
+thoroughly semantic data. Moreover traditional search engines do not use the
+structured information available with semantic data. Taking the e-commerce as
+an example, looking for a particular product is done by entering keyword
+queries into the search engine and web pages are returned. However these
+documents are most of the time irrelevant as they only include the key words,
+but are not necessarily about the product itself. Also such web pages are
+likely to provide information about other unrelated products as well. What is
+really looked for then is the \emph{entity} of the product and anything that
+can be related to that entity.
+
+Sindice\footnote{Sindice: \url{http://sindice.com/}} is a web service which
+purpose is to offer efficient searching capabilities over the semantic data.
+Sindice is built on top of the Semantic Information Retrieval Engine,
+SIREn\footnote{SIREn: \url{http://siren.sindice.com/}}, a system based on
+Information Retrieval which goal is to search not for web pages but for
+``entities''.
+
+In this chapter, the indexing model of SIREn is presented before introducing
+its query model.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{chap:BG-siren}
+\input{BG/siren}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Inverted List Compression}{
+The inverted lists data, which are needed to process queries, are stored on
+disk. This is the reason why reading the data is very costly on the queries
+performance. The more data has to be read, and the slower the query response
+will be. Thus inverted lists are compressed in order to reduce the number of
+bytes read at query time, apart from the obvious goal to reduce disk space
+consuming.
+
+In this chapter, I present a state of the art of compression algorithms. While
+Variable Byte is an algorithm that works on one integer at a time, Rice,
+Simple family algorithms and Frame Of Reference-based techniques are
+block-based. Given a block of integers from the list to compress, they aim to
+compress it as best as possible using different approaches.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{chap:compression:state-of-the-art}
+\input{BG/compression}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Self-Indexing Techniques}{
+When intersecting two or more inverted lists, we often need to
+access random records in those lists. The basic approach is to scan linearly
+the lists to find them. Such an operation is not optimal and can be
+reduced to sub-linear complexity in average by the use of the self-indexing
+approach~\cite{moffat:96}.
+
+This Chapter presents a self-indexing technique, \emph{Skip Lists}, which is a
+probabilistic alternative to balanced trees. While being easier to implement
+and to optimize than the former structure, the Skip Lists structure still
+provides a logarithm access time to records.
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{chap:self-indexing}
+\input{BG/self-indexing}

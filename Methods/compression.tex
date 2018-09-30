@@ -1,0 +1,440 @@
+\section{RiceFOR}{
+Rice is an algorithm that shows compression ratio
+performance~\cite{zhang:2008:www} close to the interpolative coding, which is
+an algorithm that provides the best compression ratio. However its complexity
+is so high that it is used only as a comparison basis between algorithms.
+RiceFOR is an attempt to take the best from both Rice and FOR algorithms: the
+compression ratio of Rice and the highly CPU optimised FOR execution flow.
+}
+
+\subsection{Algorithm}
+
+In the one hand, Rice computes the average of a block of values. Thanks to a
+parameter $b$ being the power of 2 closest to this average, it computes the
+Euclidean division of each values by b. The remainder is compressed using b
+bits, and the quotient is encoded into an unary format. On the other hand, FOR
+compress a block of values by applying a compression routine on sub-blocks of
+32 integers, where the values across the sub-blocks are encoded into a same
+number of bits. By computing the remainders in Rice all together, we achieve the
+same use case as FOR, if the number of remainders is a multiple of 32.
+The FOR algorithm is only used to compress with CPU optimized routines the
+remainders. The compression ratio is the one that we can have thanks to Rice.
+
+The RiceFOR algorithm works as follows. First we compute the remainders given a
+parameter $b$ of all values to be compressed. We might have to add some fake
+values (i.e., zeros) if the block's size is not a multiple of 32. These
+remainders are outputted into a temporary block that will be compressed using
+the FOR algorithm with b for the bit frame. Then the quotient of all values
+are to be encoded with the unary format, as they would have been with the
+original Rice algorithm.
+
+The decompression algorithm works in the same way as the original Rice, the
+difference being that the remainders are to be decompressed with FOR.
+
+\subsection{Implementation}
+
+Rice provides a good compression ratio~\cite{zhang:2008:www}, however the
+computation of the statistics and unary encoding slow its compression and
+decompression speed. Along with the optimization provided by the AFOR highly
+performing routines, two optimized algorithms have been developed in order to
+encode and decode efficiently values in unary format: an optimized routine to
+encode a value into unary format, and a routine to decode unary values at the
+byte level inspired from the Rice implementation in \cite{Yan:2009:sigir}.
+
+\begin{description}
+\item[Compression]
+Using FOR to compress the remainders computed for the Rice
+algorithm, RiceFOR is implemented as follows:
+\begin{enumerate}
+  \item[] Given a block B of integers
+  \item the power of 2 directly lower to the mean of B is used as the bit frame.
+  \item each sub-blocks of 32 remainders are compressed with that bit frame
+  using the FOR routines such as the one presented in the
+  Listings~\ref{lst:compression-routine}.
+  \item the quotient of each integer (with the division by the bit frame) are
+  encoded in unary format, using the optimized routine reported in the
+  Listings~\ref{lst:optimized-unary-enc}.
+\end{enumerate}
+\item[Decompression] The remainders are decompressed with the
+FOR routines, and the quotients are decoded using a byte-based decoding method
+presented in the Listings~\ref{lst:block-unary-dec}. Indeed a byte is likely to
+encode multiple values in unary format (e.g. 4 ones are encoded in one byte as
+$0101\;0101$), thus it is possible to decode multiple values by reading a byte
+a single time.
+\end{description}
+
+In the method \emph{encodeUnary} presented in the
+Listings~\ref{lst:optimized-unary-enc}, the loop encode the quotient $q$ into
+the array of byte $b$ of compressed data. The variable \emph{bit} is global and
+records the number of bit already compressed. On line 3, the local variable
+\emph{r} holds the number of bits in the current byte that are still unused.
+The variable \emph{ones} holds the number of bits that will be set to 1. The
+switch structure displays 8 hard coded cases to write from 1 to 8 bits at 1.
+With the example of case 3 on line 7, the current byte, i.e., $bit / 8$, has
+3 bits (7 in binary format: $111$) appended to it. These operations will repeat
+until the quotient q has been completely encoded. The termination criterion of
+the unary encoding, i.e., bit at zero, is computed on line 15. This suggests
+that the current byte has been previously initialized to zero.
+
+The method presented in the Listings~\ref{lst:block-unary-dec} reads a byte
+containing values in unary format and decode them into an int array, starting
+at the position \emph{offset}. All the unary encoded values are quotient
+computed by the Rice algorithm, with a same parameter \emph{frameBit}. The
+switch structure contains all 256 possibilities of bits configurations, and
+hard codes for each cases the corresponding updates. For example the 26 case,
+which in binary base equals $0001\;1010$, encodes 5 values which respectively
+are from the least to the most significant bit $0$, $1$, $2$, 0 and 0. Thus the
+quotients are respectively 0, $1^{bitFrame}$, $2\times1^{bitFrame}$, 0 and 0,
+with $bitFrame$ the divisor parameter used in Rice.
+
+\begin{fileformat}
+  \centering
+  \begin{minipage}[t]{0.47\linewidth}
+\begin{lstlisting}[frame=lines,language=Java,numbers=left,caption=Unary
+format encoding.,label=lst:optimized-unary-enc]
+encodeUnary(int q, byte[] b)
+	while (q > 0) {
+		int r = 8 - (bit % 8);
+		int ones = r > v ? v : r;
+		switch (ones) {
+			...
+			case 3:
+				b[bit / 8] |= (7 << (bit % 8));
+				bit += 3;
+				break;
+			...
+		}
+		q -= ones;
+	}
+	bit += 1
+\end{lstlisting}
+  \end{minipage}
+  \quad%
+  \begin{minipage}[t]{0.47\linewidth}
+\begin{lstlisting}[frame=lines,language=Java,numbers=left,caption=Byte-based
+unary format decoding.,label=lst:block-unary-dec]
+decodeUnary(byte b, int[] i)
+	switch (b) {
+		...
+		case 26: // 26 = 0001 1010
+			i[offset] += 0;
+			i[offset + 1] += 1^frameBit;
+			i[offset + 2] += 2*1^frameBit;
+			i[offset + 3] += 0;
+			i[offset + 4] += 0;
+			offset += 5;
+			break;
+		...
+	}
+\end{lstlisting}
+  \end{minipage}
+\end{fileformat}
+
+\section{Adaptive Frame Of Reference}{
+The Adaptive Frame Of Reference (AFOR) attempts to retain the best of FOR,
+i.e., a very efficient compression and decompression using highly-optimised
+routines to avoid branching conditions, while providing a better tolerance
+against outliers and therefore achieving a higher compression ratio. Compared
+to PFOR, AFOR does not rely on the encoding of exceptions in the presence of
+outliers. Instead, AFOR partitions a block into multiple frames of variable
+length, the partition and the length of the frames being chosen appropriately
+in order to adapt the encoding to the value distribution.
+}
+\label{sec:afor}
+
+\subsection{Algorithm}
+
+AFOR extends the FOR algorithm and runs as follows. Given a block $B$ of $n$
+integers, AFOR partitions it into $m$ distinct frames and encodes each frame
+using highly-optimised routines similarly to FOR. Each frame is independent
+from one an other, i.e., each one has its own \emph{bit frame}, and each one
+encodes a variable numbers of values. This is depicted in
+Figure~\ref{fig:compression:afor} by \emph{AFOR-2}. AFOR encodes along with
+the frame the associated bit frame with respect to a given encoder, e.g., a
+binary encoder. In fact, AFOR encodes (respectively decodes) a block of values
+by:
+\begin{enumerate}
+\item encoding (respectively decoding) the bit frame;
+\item selecting the compression (respectively decompression) routine associated
+to the bit frame;
+\item encoding (respectively decoding) the frame using the selected routine.
+\end{enumerate}
+
+\begin{figure*}
+  \centering
+	\includegraphics[width=0.7\linewidth]{pics/afor-encoding}
+	\caption{Block compression comparison between FOR and AFOR. We alternate
+	colours to differentiate independent frames. AFOR-1 denotes a first
+	implementation of AFOR using a fixed frame length. AFOR-2 denotes a second
+	implementation of AFOR using variable frame lengths. AFOR-3 denotes a third
+	implementation using variable frame lengths and the frame stripping technique.
+ 	\emph{BFS} denotes the byte storing the bit frame selector associated to the
+	next frame.}
+	\label{fig:compression:afor}
+\end{figure*}
+
+Finding the right partitioning, i.e., the optimal configuration of frames and
+frame lengths per block, is essential for achieving high compression
+ratio~\cite{rossano:2010:vse}. If a frame is too large, the encoding becomes
+more sensitive to outliers and wastes bits by using a too big bit frame for
+all the other integers. On the contrary, if the frames are too small, the
+encoding wastes too much space due to the overhead of storing a larger numbers
+of bit frames. The appropriate strategy is to rely 
+\begin{enumerate}
+  \item on large frames in the presence of a homogeneous sequence of values.
+  \item on small frames in the presence of outliers.
+\end{enumerate}
+Also, alternating
+between large and small frames is not only important for achieving high
+compression ratio but also for achieving high performance. If the frames are
+too small, the encoding has to perform more branching conditions to select the
+appropriate routine for each bit frame, and therefore the compression and
+decompression performance decrease. Therefore, it is better to rely on large
+frames instead of multiple smaller frames when it is possible. Our solution
+uses a greedy local optimization algorithm which is explained in the next
+section.
+
+\subsection{Partitioning Blocks into Variable Frames}
+
+Finding the optimal configuration of frames and frame lengths for a block of
+values is a combinatorial problem. For example, with three different frame
+lengths (32, 16 and 8) and a block of size 1024 integers, there are $1.18
+\times 10^{30}$ possible combinations. While such a combinatorial problem can
+be solved via Dynamic Programming algorithms~\cite{rossano:2010:vse}, the
+complexity of such algorithms is still $O(n \times k)$, with the term $n$
+being the number of integers and the term $k$ the size of the largest frame,
+therefore it greatly impacts the compression performance. Since we are not
+only interested by a fast decompression speed and a high compression ratio,
+but also by a fast compression speed, this approach is not used in our
+experiments. Instead, we use a local optimization algorithm that provides a
+satisfactory compression rate while being efficient to efficient to compute.
+
+\begin{description}
+\item[Local Optimization algorithm]
+AFOR computes the block partitioning by using a sliding window over a block
+and determines the optimal configuration of frames and frame lengths for the
+current window.
+
+Given a window of size $w$ and a list of possible frame
+lengths, we first compute beforehand the possible configurations. For example,
+for a window size of 32 and three different frame lengths, 32, 16 and 8, there
+are six configurations: $[32],[16,16],[16,8,8],[8,16,8],[8,8,16],[8,8,8,8]$.
+Then, given a list of possible configurations for a window, we
+estimate the size of each configuration by doing one pass over the values of
+the window as shown in the Algorithm~\ref{algo:afor2-opt} (Lines 1-5). This
+first step performs $w \times k$ comparisons with $k$ the number of possible
+configurations. The second step, Lines 6-12 in Algorithm~\ref{algo:afor2-opt},
+performs a pass over the possible configuration and estimates the size of each
+configuration in order to find the best one. The \texttt{EstimateSize}
+function computes the cost of encoding the window given one configuration,
+accounting also the overhead of storing the bit frames. For example, for the
+configuration $[8,8,8,8]$ with four frames of size 8 each, and with four
+associated bit frames, $b_{1}$ to $b_{4}$, the size of the encoding is
+computed as follow: $4 + 8 \times \sum_{i=1\ldots4} log(b_i + 1)$, where $8
+\times \sum_{i=1\ldots4} log(b_i + 1)$ is the size of the four encoded frames
+and $4$ is the overhead to store the four bit frames.
+\end{description}
+
+This simple algorithm is efficient to compute, in particular if the
+window size is small and the frame lengths are restricted to a few number.
+However, it is easy to see that such method does not provide the optimal
+configuration for a complete block. There is a trade-off between optimal
+partitioning and complexity of the algorithm. However, one can possibly use a
+more complex method for achieving higher compression ratio if the compression
+speed is not critical. We decided to use this method since in our experiment
+we found that a small window size of 32 values and three frame lengths, 32, 16
+and 8, were providing satisfactory results in term of compression speed and
+compression ratio. In the next Section is presented a more detailed explanation
+of the AFOR implementation.
+
+\SetAlFnt{\sf}
+\IncMargin{.5em}
+\begin{algorithm}
+\SetAlgoLined
+\LinesNumbered
+\SetKwData{Conf}{c}
+\SetKwData{BestConf}{bestConf}\SetKwData{BestSize}{bestSize}
+\SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+\SetKwFunction{GetBitFrame}{GetBitFrame}\SetKwFunction{SetBitFrame}{SetBitFrame}
+\SetKwArray{BitFrames}{bitFrames}
+\SetKwFunction{EstimateSize}{EstimateSize}
+
+\Input{A window $W$ of size $w$}
+\Input{The smallest frame length $l$}
+\Output{The best configuration for the window}
+
+\BlankLine
+\BlankLine
+
+\For{$i \leftarrow 0$ \KwTo $\frac{w}{l}$}{
+  \For{$j \leftarrow i \times l$ \KwTo $(i + 1) \times l$}{
+    \BitFrames{i} $\leftarrow \max($\BitFrames{i}$, \lceil \log_2(W[j] + 1) \rceil)$\;
+  }
+}
+\BestSize $\leftarrow$ $MaxSize$\;
+\ForEach{configuration \Conf of the possible configurations}{
+  \If{\EstimateSize{\Conf, \BitFrames} $<$ \BestSize}{
+    \BestSize $\leftarrow$ \EstimateSize{\Conf}\;
+	\BestConf $\leftarrow$ \Conf\;
+  }
+}
+\caption{The algorithm that finds the best configuration of frames and frame
+lengths for a window $W$ of size $w$.}
+\label{algo:afor2-opt}
+\end{algorithm}
+\DecMargin{.5em}
+
+\subsection{Frame Stripping}
+\label{sec:compression:stripping}
+
+In an inverted list, it is common to encounter a long sequence of 1 to encode,
+i.e., the delta gap value. For example, this occurs with terms that appear
+frequently in many entities. With RDF data, such a very common term might be a
+predicate URI or a widely present class URI. As a consequence, the list of
+entity identifiers is composed of many consecutive identifiers, which is
+encoded as a list of 1 using the delta representation. Also, the schema used
+across the entity descriptions coming from a same dataset is generally
+similar. When indexing batch of entities coming from a same dataset, we
+benefit from a ``term clustering'' effect: all the schema terms are associated
+with long runs of consecutive entity identifiers in the inverted index. There
+is also other cases where a long run of 1 is common, for example in:
+\begin{itemize}
+\item the list of term frequencies for terms that appear frequently a single
+time in the entity description, e.g., class URIs;
+\item the list of value identifiers for terms that appear frequently in
+single-valued attributes;
+\item the list of term positions for nodes holding a single term, e.g., URIs. 
+\end{itemize}
+
+In presence of such long runs of 1, AFOR still needs to encode each value
+using 1 bit. For example, a frame of 32 values will encode a sequence of 1
+using 32 bits. The goal of the \emph{Frame Stripping} method is to avoid the
+encoding of such frames. Our solution is to \emph{strip} the content of a
+frame if and only if the frame is exclusively composed of 1. We encode such a
+case using a special bit frame.
+
+\subsection{Frame Skipping}
+\label{sec:afor-skip}
+
+Block-based compression techniques encode the configuration a block of integers
+has been compressed with. When the length of the compressed block is unknown,
+this compression header possesses information about the block that can be used
+to skip this block and so not to decompress it.
+
+With the AFOR algorithm, this method enables the possibility to skip a frame by
+reading a BFS. This is not possible with techniques such as Rice, VByte or
+PFOR. Since the BFS encodes the bit frame used to compress a frame, the size
+in bytes of a compressed frame is found by the formula
+\begin{displaymath}
+\mid F \mid \times BFS
+\end{displaymath}
+where $\mid F \mid$ is the length of a frame. For instance the bit frame 1
+(i.e., 1 bit) encodes a frame of 32 integers into 4 bytes.
+
+With self-indexing structures (presented in Chapter~\ref{sec:self-indexing}),
+the difference in bytes between two points in a stream is necessary in order to
+know at which position data has to be read. These \emph{file pointers} have to
+be stored, taking a considerable space. Thanks to the frame skipping method, it
+is possible to get rid of the additional file pointers information, since the
+size in bytes of a frame is known by reading its BFS.
+
+\subsection{Implementations}
+
+We present three different implementations of the AFOR encoder class. We can
+obtain many variations of AFOR by using various sets of frame lengths and
+different parameters for the partitioning algorithm. We tried many of them
+during our experimentation and report here only the ones that are promising
+and interesting to compare.
+
+\paragraph{AFOR-1}
+
+The first implementation of AFOR, referred to as AFOR-1 and depicted in
+Figure~\ref{fig:compression:afor}, is using a single frame length of 32
+values. To clarify, this approach is identical to FOR applied on small blocks
+of 32 integers. This first implementation shows the benefits of using short
+frames instead of long frames of 1024 values as in our original FOR
+implementation. In addition, AFOR-1 is used to compare and judge the benefits
+provided by AFOR-2, the second implementation using variable frame lengths.
+Considering that, with a fixed frame length, a block is always partitioned in
+the same manner, AFOR-1 does not rely on the partitioning algorithm presented
+previously.
+
+\paragraph{AFOR-2}
+
+The second implementation, referred to as AFOR-2 and depicted in
+Figure~\ref{fig:compression:afor}, relies on three frame lengths: 32, 16 and
+8. We found that these three frame lengths give the best balance between
+performance and compression ratio. Additional frame lengths were rarely
+selected and the performance was decreasing due to the larger number of
+partitioning configurations to compute. Reducing the number of possible frame
+lengths was providing slightly better performance but slightly worse
+compression ratio. There is a trade-off between performance and compression
+effectiveness when choosing the right set of frame lengths. Our implementation
+relies on the partitioning algorithm presented earlier, using a window's size
+of 32 values and six partitioning configurations
+$[32],[16,16],[16,8,8],[8,16,8],[8,8,16],[8,8,8,8]$.
+
+\paragraph{AFOR-3}
+
+The third implementation, referred to as AFOR-3 and depicted in
+Figure~\ref{fig:compression:afor}, is identical to AFOR-2 but employs the
+\emph{frame stripping} technique. Compared to AFOR-2, the compressed block can
+contain frames which is then encoded by a single bit frame as depicted in
+Figure~\ref{fig:compression:afor}. AFOR-3 implementation relies on the same
+partitioning algorithm as AFOR-2 with an additional step to find and strip
+frames composed of a sequence of 1 in the partitions.
+
+\subsubsection{Compression and decompression routines}
+
+Our implementations rely on highly-optimised routines such as the ones
+presented in Listing~\ref{lst:compression-routine} and
+\ref{lst:decompression-routine}, where each routine is loop-unrolled to encode
+or decode a fixed number of values using shift and mask operations only. There
+is one routine per bit frame and per frame length. For example, with a frame
+length of 8 values, the routine encodes 8 values using 3 bits each as shown in
+Listing~\ref{lst:compression-routine}, while for a frame length of 32, the
+routine encodes 32 values using 3 bits each.
+
+Since AFOR-1 uses a single frame length, it only needs 32 routines for
+compression and 32 routines for decompression, i.e., one routine per bit frame
+(1 to 32). With respect to AFOR-2, since it relies on three different frame
+lengths, it needs 96 routines for compression and 96 routines for
+decompression. As for AFOR-3, one additional routine for handling a
+sequence of 1 is added per frame length. The associated compression routine is
+empty and does nothing since the content of the frame is not encoded.
+Therefore the cost is reduced to a single function call. The decompression
+routine consists of returning an array of ones. This last routine is very fast
+to execute since there are no shift or mask operations.
+
+\subsubsection{Bit frame encoding}
+
+As a reminder the bit frame is encoded along with the frame, so that, at
+decompression time, the decoder can read the bit frame and select the
+appropriate routine to decode the frame. In the case of AFOR-1, the bit frame
+varies between 1 to 32. For AFOR-2, there are 96 cases to be encoded, where
+cases 1 to 32 refer to the bit frames for a frame length of 8, cases 33 to 63
+for a frame length of 16, and cases 64 to 96 for a frame length of 32. In
+AFOR-3, we encode one additional case per frame length with respect to the
+frame stripping method. Therefore, there is a total of 99 cases to be encoded.
+The cases 97 to 99 refer to a sequence of 1 for a frame length of 8, 16 and 32
+respectively.
+
+In our implementation, the bit frame is encoded using one byte. While this
+approach wastes some bits each time a bit frame is stored, more precisely 3
+bits for AFOR-1 and 1 bit for AFOR-2 and AFOR-3, the choice is again for a
+question of efficiency. Since bit frames and frames are interleaved in the
+block, storing the bit frame using one full byte enables the frame to be
+aligned with the start and the end of a byte boundary. Another implementation
+to avoid wasting bits is to pack all the bit frames at the end of the block. We
+tried this approach and report that it provides slightly better compression
+ratio, but slightly worse performance. Since the interleaved approach was
+providing better performance, we decided to use it in our benchmarks.
+
+\subsubsection{Routine selection}
+
+A precomputed lookup table is used by the encoder and decoder to quickly
+select the appropriate routine given a bit frame. Compared to AFOR-1, AFOR-2
+and AFOR-3 have to perform more table lookups for selecting routines since
+they are likely to rely on small frames of 8 or 16 values when the value
+distribution is sparse. While these lookups cost additional CPU cycles, we
+will see in the experiments that the overhead is minimal.

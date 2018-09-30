@@ -1,0 +1,54 @@
+\chapter{Benchmarking Framework}{
+The benchmarks were all performed using JAVA, and some precautions should be
+taken when doing so. Indeed JAVA is a language which is ``Just-In-Time'' (JIT)
+compiled, meaning that the code used is compiled only at runtime. JAVA uses
+different heuristics so that only the most frequently used code is compiled,
+which optimizations take place while runtime. Thus the time spent by the Java
+Virtual Machine (JVM) becomes a noise to benchmarks results evaluating the
+running time of an application. This noise problem should be taken even more
+seriously when performing micro-benchmarks in order to have sound results to
+discuss on.
+
+This Chapter presents the different points to pay attention to, before
+describing the benchmarking platform used to get all the experiments results
+in this report.
+}
+\label{chap:benchmarking-framework}
+\input{Benchmarks/benchmarking-framework}
+
+\chapter{Compression Benchmarks}{
+This section describes the benchmark experiments which aim to compare the
+various compression methods described previously. The benefits gained with the
+use of AFOR algorithms is discussed through two types of data sources. The
+first one are unstructured documents: a document is just a bag of words. The
+second one are semantically structured documents, e.g. RDF enriched documents.
+Since the indexing model for these two types are different, the distribution of
+the values within the streams is then also different. Thus the efficiency of a
+same compression technique depends on the dataset type.
+}
+\label{chap:benchmark-cmp}
+\input{Benchmarks/compression}
+
+\chapter{Scalability of SIREn}{
+In the previous experiments, we have seen that AFOR-3 is the most suitable
+compression technique for an entity inverted index like SIREn. Based on these
+results, we perform a stress test of the entity index compressed with AFOR-3
+through a large scale experiment which simulates the conditions of a real Web
+Data search engine such as Sindice. We use the full Sindice data collection to
+create three indexes of increasing size and we generate a set of star queries
+of increasing complexity. We compare the query rate (queries per second)
+the system can answer with respect to the size of the index and the complexity
+of the query.
+}
+\label{chap:scalability}
+\input{Benchmarks/scalability}
+
+\chapter{Self-Indexing Benchmarks}{%
+In this section we will discuss the performance of SkipBlock compared to Skip
+Lists by building structures on real data and performing set operations. First
+we present the benchmarking environment used for comparing the self-indexing
+structures. Then we compare the results of the SkipBlock structure to the
+theoretical ones, before discussing the benefits of the block-based
+self-indexing structure against the original Skip List. }%
+\label{chap:self-indexing-bench}
+\input{Benchmarks/self-indexing}

@@ -1,0 +1,44 @@
+\chapter{Inverted Lists Compression For SIREn}{%
+The SIREn indexing model generates a specific distribution of values. Since
+each stream of values are local to an other (i.e attributes identifiers are
+local to an entity, values identifiers are local to an attribute, and positions
+are local to a value), a new compression algorithm that is better adapted to
+the SIREn use case was researched.
+
+The performance aspects looked after are
+\begin{inparaenum}[(1)]
+\item the compression
+\item the decompression and
+\item the compression ratio.
+\end{inparaenum}
+The decompression speed is important when processing queries because it means
+that less time is to be spent on IO operations. The compression ratio is
+important as per the storage space, but not only. As previously, less data
+read from disk means less time wasted on IO operations. The compression speed
+aspect does not matter when processing queries, but takes an important place
+when updating the index. Indeed SIREn possesses an incremental index update
+policy, thus compression algorithm showing good decompression speed will allow
+indexes to be updated faster than an algorithm with slower compression
+algorithm.
+
+In this chapter, two of the compression techniques researched on are presented,
+with \emph{RiceFOR} first, an algorithm that fuses together the Rice and FOR
+algorithms, and the \emph{Adaptive Frame Of Reference} (AFOR), a new algorithm
+based on FOR, which goal is to decrease the FOR sensibility to outliers.
+}%
+\label{chap:cmp-methods}
+\input{Methods/compression}
+
+\chapter{SkipBlock: Self-Indexing for Block-Based Inverted Lists}{%
+SkipBlock is a model for block-based inverted lists, that can be applied as
+well on traditional inverted lists. It is based on an adaptation of the Skip
+List data structure. This work is orthogonal to related work on self-indexing
+structures, since they might be extended to this model.
+
+In this section, the SkipBlock model is presented with its associated search
+algorithm. We discuss then the impact of the structure's parameters for both
+Skip List and SkipBLock. We argue after the different strategies available to
+search within intervals for both structures. Finally we compare thanks to a
+cost-based model the differences between the Skip Lists and the SkipBlock. }
+\label{chap:skipblock}
+\input{Methods/self-indexing}

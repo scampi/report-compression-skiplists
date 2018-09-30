@@ -1,0 +1,78 @@
+\chapter{Introduction}{
+The Web as we know it is mostly a huge collection of documents, e.g. texts,
+pictures, \ldots, connected together thanks to HTTP links.
+These links carry no meaning about the
+relationship between two documents, or about the content a document exhibits.
+Linked Data refers to those same documents, but enriched with \emph{semantic}
+meta-data. For example, the content of a document can be described by this
+meta-data by indicating the language it was written in, or the content's type,
+e.g. book or article. Tim Berners-Lee has first introduced the idea of such
+enriched web documents, called \emph{Linked Data}. For such a vision to be
+viable as the web is now a large collection of heterogeneous data, a framework
+that sets the best practices for publishing and searching Linked Data is a
+necessity. The \emph{Semantic Web} is such a framework and is not aimed to be a
+replacement of the Web as we know it, but as an extension giving relevant
+knowledge about documents on the web.
+\linebreak
+
+Over the past years, the quantity of Linked Data available has been increasing
+and is now reaching a climax. Semantic Data now at hand, the challenge is to be
+able to search for information efficiently. Linked Data is commonly stored
+within databases called \emph{Triple Stores}, where querying is normally done
+thanks to the standardized query language SPARQL defined with the Semantic Web.
+However this language, while being very expressive, is known not to scale
+efficiently to a large amount of data. \emph{SIREn} is an Information
+Retrieval-based search engine which goal is to store and to query efficiently
+at the web scale Linked Data. SIREn is a low level application, meant to be
+used by other applications such as web services that provide people
+information results about what they queried for. \emph{Sindice} is a web
+service that provide people and machines a search engine over Linked Data
+through the use of SIREn.
+\linebreak
+
+SIREn builds an index over the Linked Data collections for searching and
+retrieval purpose. With the amount of Linked Data growing quickly, the size of
+such indexes and the performance to retrieve data from it are then points of
+interest to build a scalable system. A compressed index is of course important
+in order to take less space, however decreasing the time spent on IO operations
+is also important in order to increase the query throughput. Within the long
+studied domain of Information Retrieval, compression methods have been
+developed for that purpose. However they were built for traditional indexes,
+i.e., indexes built on collections with textual documents (unstructured data). On
+the contrary, SIREn builds indexes on Linked Data, i.e., (semi) structured
+data. Because the type of data differs, the model used to index documents
+is different, which implies that the distribution of indexed values are
+different. State of the art compression techniques are not adapted to this new
+distribution of values, and so a new compression class has been developed to
+match this need: \emph{Adaptive Frame Of Reference}.
+\linebreak
+
+Index compression is one aspect that has to be taken care of when building an
+efficient and scalable Information Retrieval search engine. Some information
+in the index is not relevant to a query. Reading unnecessary data when
+processing a query is then wasted time. An other aspect to optimize the
+performance of a search engine is to avoid reading useless information with
+regards to a query as much as possible by using \emph{self-indexing}
+techniques. The \emph{Skip Lists} is a data structure that can be used for that
+purpose. Highly efficient compression techniques are nowadays block-based
+algorithms. However Skip Lists abstracts from the block view, discarding
+statistics about the block that could be used for a more efficient structure.
+\emph{SkipBlock} is a block-based self-indexing model that generalizes the
+Skip Lists structure.
+
+We review in this report some techniques that aim to reduce the IO access time
+overhead in order to increase the overall performance of the Information
+Retrieval web search engine. We present AFOR, a compression method that
+provides both fast compression and decompression speed, and yet with a high
+compression ratio. We propose SkipBlock, a new self-indexing model that
+reduces the time of random lookups from inverted lists. }
+\input{prelude/introduction}
+
+\chapter{Digital Enterprise Research Institute} {
+DERI is a worldwide organisation of research institutes with the common
+objective of integrating semantics into computer science and understanding how
+semantics can improve computer engineering in order to develop information
+systems collaborating on a global scale. A major step in this project is the
+realisation of the Semantic Web.
+}
+\input{prelude/DERI}
